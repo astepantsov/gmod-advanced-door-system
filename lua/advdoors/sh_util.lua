@@ -25,4 +25,11 @@ if CLIENT then
         end
         return false
     end
+	
+	AdvDoors.getOwnerSteamID64 = function(door)
+		if door:getDoorOwner() and door:getDoorOwner() != nil and IsValid(door:getDoorOwner()) then
+            return door:getDoorOwner():SteamID64()
+        end
+        return false
+	end
 end
