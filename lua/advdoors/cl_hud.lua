@@ -135,7 +135,7 @@ hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", f
 			surface.SetDrawColor(Color(150, 150, 150, 50))
 			surface.DrawLine(-w/2, h/2 - 60, w/2, h/2 - 60)
 			surface.DrawLine(-w/2, h/2 - 120, w/2, h/2 - 120)
-			if tr.Entity == v.Entity and pos[v.XL] > PosLocal[v.XL] - 47/2 and pos[v.XL] < PosLocal[v.XL] + 47/2 and pos[v.YL] < PosLocal[v.YL] - 48/2 + 120/10 and pos[v.YL] > PosLocal[v.YL] - 48/2 + 60/10 then
+			if tr.Entity == v.Entity and pos[v.XL] > PosLocal[v.XL] - 47/2 and pos[v.XL] < PosLocal[v.XL] + 47/2 and pos[v.YL] < PosLocal[v.YL] - 48/2 + 120/10 and pos[v.YL] > PosLocal[v.YL] - 48/2 + 60/10 and LocalPlayer():GetPos():Distance(v.Entity:GetPos()) < 200 then
 				surface.SetDrawColor(Color(69, 48, 23, 150))
 				surface.DrawRect(-w/2, h/2 - 120, w, 60, 10)
 				if input.IsMouseDown(MOUSE_RIGHT) and not AdvDoors.KeyLocked then

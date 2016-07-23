@@ -94,6 +94,12 @@ AdvDoors.openMenu = function(door)
 	BoolOwnership:SetValue(!door:getKeysNonOwnable())
 	BoolOwnership.OnValueChanged = function(value)
 		RunConsoleCommand("darkrp", "toggleownable")
+		BoolOwnership:SetDisabled(true)
+		timer.Simple(1, function()
+			if frame and IsValid(frame) and BoolOwnership and IsValid(BoolOwnership) then
+				BoolOwnership:SetDisabled(false)
+			end
+		end)
 	end
 
 	local menuTabs = {
