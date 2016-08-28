@@ -90,7 +90,7 @@ AdvDoors.DownloadMaterial("http://i.imgur.com/axjRFV1.png", function(self) unloc
 
 hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", function()
 	for _,v in pairs(GenerateDoorList()) do
-		if v.Entity:isKeysOwnable() then
+		if v.Entity:isKeysOwnable() and not v.Entity:getKeysNonOwnable() then
 			local trace = {
 				start = LocalPlayer():GetShootPos(),
 				endpos = LocalPlayer():GetAimVector() * 295 + LocalPlayer():GetShootPos(),
