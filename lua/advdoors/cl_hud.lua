@@ -113,12 +113,12 @@ hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", f
 				surface.SetDrawColor(Color(227, 94, 5, 150))
 				surface.DrawRect(-w/2, -h/2 + 60, 64, 64);
 				surface.SetMaterial(locked)
-				draw.SimpleText("Door is locked", "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Locked", "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			else
 				surface.SetDrawColor(Color(165, 255, 105, 150))
 				surface.DrawRect(-w/2, -h/2 + 60, 64, 64);
 				surface.SetMaterial(unlocked)
-				draw.SimpleText("Door is unlocked", "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Not Locked", "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 			draw.CornerBox(-w/2, -h/2 + 60, w, 64, 10, Color(255, 255, 255, 150));
 			draw.Corner(-w/2, -h/2 + 60, CORNER_RIGHT, CORNER_UP, 10, Color(255, 255, 255, 150))
@@ -129,7 +129,7 @@ hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", f
 			surface.DrawLine(-w/2, -h/2 + 124, w/2, -h/2 + 124)
 			surface.DrawLine(-w/2 + 64, -h/2 + 60, -w/2 + 64, -h/2 + 124)
 			draw.CornerBox(-w/2, -h/2 + 124, w, 60, 10, Color(255, 255, 255, 150));
-			draw.SimpleText("Owner: " .. (AdvDoors.getOwnerName(v.Entity) or v.Entity:getKeysDoorGroup() or (v.Entity:getKeysDoorTeams() and "specified jobs") or "unowned"), "AdvDoorsMain", 0, -h/2 + 154, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText((AdvDoors.getOwnerName(v.Entity) or v.Entity:getKeysDoorGroup() or (v.Entity:getKeysDoorTeams() and "specified jobs") or "Unowned"), "AdvDoorsMain", 0, -h/2 + 154, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			draw.CornerBox(-w/2, h/2 - 60, w, 60, 10, Color(255, 255, 255, 150));
 			local PosLocal = v.Entity:WorldToLocal(v.Position)
 			surface.SetDrawColor(Color(150, 150, 150, 50))
