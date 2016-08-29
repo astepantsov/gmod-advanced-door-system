@@ -108,7 +108,7 @@ hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", f
 			draw.SimpleText(v.Entity:getKeysTitle() or "Unnamed", "AdvDoorsMain", 0, -h/2 + 10, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 			surface.SetDrawColor(Color(150, 150, 150, 50))
 			surface.DrawLine(-w/2, -h/2 + 60, w/2, -h/2 + 60)
-			surface.DrawOutlinedRect(-w/2, -h/2, w, h)
+			surface.DrawOutlinedRect(-w/2, -h/2, w + 1, h + 1)
 			if AdvDoors.isLocked(v.Entity) then
 				surface.SetDrawColor(Color(227, 94, 5, 150))
 				surface.DrawRect(-w/2, -h/2 + 60, 64, 64);
