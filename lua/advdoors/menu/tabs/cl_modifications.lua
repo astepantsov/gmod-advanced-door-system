@@ -16,4 +16,4 @@ TAB.Function = function(frame, door)
 	return pnl_modifications
 end
 
-AdvDoors.AddMenuTab(TAB)
+AdvDoors.AddMenuTab(TAB, 4)

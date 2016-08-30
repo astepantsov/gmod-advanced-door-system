@@ -56,19 +56,28 @@ TAB.Function = function(frame, door)
 	{"TestName", "TestSteamID"},
 	{"TestName", "TestSteamID"}
 	}
-	if door:getKeysCoOwners() then
-		for k,v in pairs(door:getKeysCoOwners()) do
+	local elements = 0;
+	local coOwners = door:getKeysCoOwners()
+	if coOwners then
+		for k,v in pairs(coOwners) do
+			elements = elements + 1;
 			local coownerItem = coownerLayout:Add("mgItem")
 			coownerItem:SetSize(110, 32)
 			coownerItem:SetName(v:Name()) 
 			coownerItem:SetSteamID(v:SteamID64())
 			coownerItem:SetType("Player")
+			if elements == 3 then
+				local CoownersMore = coownerLayout:Add("mgButton")
+				CoownersMore:SetText("and " .. (#coOwners - elements) .. " more")
+				CoownersMore:SetSize(110, 32) 
+				break
+			end
 		end
 	else
 		local noCoowners = coownerLayout:Add("mgStatusLabel")
-		noCoowners:SetType("info")
+		noCoowners:SetType("primary")
 		noCoowners:SetText("this door has no coowners")
-		noCoowners:SizeToContents(true)
+		noCoowners:SizeToContents(true) 
 		noCoowners:SetHeight(32);
 	end
 
@@ -80,7 +89,7 @@ TAB.Function = function(frame, door)
 	labelGroups:SizeToContents()
 	
 	local labelGroupOwner = vgui.Create("mgStatusLabel", pnl_information)
-	labelGroupOwner:SetType("info")
+	labelGroupOwner:SetType("primary")
 	labelGroupOwner:SetText(door:getKeysDoorGroup() or "No group")
 	labelGroupOwner:SetPos(10 + labelGroups:GetWide(), 54 + coownerLayout:GetTall());
 	labelGroupOwner:SizeToContents(true)
@@ -102,14 +111,14 @@ TAB.Function = function(frame, door)
 	if door:getKeysDoorTeams() then
 		for k,v in pairs(door:getKeysDoorTeams()) do
 			local teamItem = teamsLayout:Add("mgStatusLabel")
-			teamItem:SetType("info")
+			teamItem:SetType("primary")
 			teamItem:SetText(team.GetName(k))
 			teamItem:SizeToContents(true)
 			teamItem:SetHeight(32)
 		end
 	else
 		local noTeams = teamsLayout:Add("mgStatusLabel")
-		noTeams:SetType("info")
+		noTeams:SetType("primary")
 		noTeams:SetText("this door has no teams assigned")
 		noTeams:SizeToContents(true)
 		noTeams:SetHeight(32)
@@ -117,4 +126,4 @@ TAB.Function = function(frame, door)
 	return pnl_information
 end
 
-AdvDoors.AddMenuTab(TAB)
+AdvDoors.AddMenuTab(TAB, 1)

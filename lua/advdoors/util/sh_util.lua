@@ -34,7 +34,11 @@ if CLIENT then
         return false
 	end
 	
-	AdvDoors.AddMenuTab = function(tab)
-		table.insert(AdvDoors.MenuTabs, tab)
+	AdvDoors.AddMenuTab = function(tab, id)
+		if !id then
+			table.insert(AdvDoors.MenuTabs, tab)
+		else
+			AdvDoors.MenuTabs[id] = tab
+		end
 	end
 end
