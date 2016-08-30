@@ -26,7 +26,7 @@ AdvDoors.Configuration.Load = function()
 
 	AdvDoors.Configuration.Loaded = config
 
-	print("[Advanced Door System] Configuration has been loaded.")
+	MsgC(Color(0, 255, 0), "[Advanced Door System] Configuration has been loaded.")
 end
 
 AdvDoors.Configuration.getGeneralConfig = function()

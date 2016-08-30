@@ -1,4 +1,5 @@
 if CLIENT then
+	AdvDoors.MenuTabs = {}
     AdvDoors.DownloadMaterial = function(url, callback)
         local crc = util.CRC(url)
         
@@ -31,5 +32,9 @@ if CLIENT then
             return door:getDoorOwner():SteamID64()
         end
         return false
+	end
+	
+	AdvDoors.AddMenuTab = function(tab)
+		table.insert(AdvDoors.MenuTabs, tab)
 	end
 end
