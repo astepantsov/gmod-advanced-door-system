@@ -74,16 +74,17 @@ TAB.Function = function(frame, door)
 			end
 		end
 	else
+		local pos_x, pos_y = coownerLayout:GetPos();
+		coownerLayout:SetPos(pos_x, pos_y + 8);
 		local noCoowners = coownerLayout:Add("mgStatusLabel")
 		noCoowners:SetType("primary")
 		noCoowners:SetText("this door has no coowners")
 		noCoowners:SizeToContents(true) 
-		noCoowners:SetHeight(32);
 	end
 
 	coownerLayout:InvalidateLayout(true)
 	local labelGroups = vgui.Create("DLabel", pnl_information)
-	labelGroups:SetPos(5, 59 + coownerLayout:GetTall())
+	labelGroups:SetPos(5, 67 + coownerLayout:GetTall())
 	labelGroups:SetText("Door group: ")
 	labelGroups:SetFont(fontMenu)
 	labelGroups:SizeToContents()
@@ -91,9 +92,8 @@ TAB.Function = function(frame, door)
 	local labelGroupOwner = vgui.Create("mgStatusLabel", pnl_information)
 	labelGroupOwner:SetType("primary")
 	labelGroupOwner:SetText(door:getKeysDoorGroup() or "No group")
-	labelGroupOwner:SetPos(10 + labelGroups:GetWide(), 54 + coownerLayout:GetTall());
+	labelGroupOwner:SetPos(10 + labelGroups:GetWide(), 70 + coownerLayout:GetTall());
 	labelGroupOwner:SizeToContents(true)
-	labelGroupOwner:SetHeight(32);
 	
 	local x, y = labelGroupOwner:GetPos();
 	local labelTeams = vgui.Create("DLabel", pnl_information)
@@ -104,24 +104,22 @@ TAB.Function = function(frame, door)
 	
 	local teamsLayout = vgui.Create("DIconLayout", pnl_information)
 	teamsLayout:SetSize(frame:GetWide() - labelTeams:GetWide() - 10, 69)
-	teamsLayout:SetPos(10 + labelTeams:GetWide(), y + labelGroupOwner:GetTall() + 8)
+	teamsLayout:SetPos(10 + labelTeams:GetWide(), y + labelGroupOwner:GetTall() + 16)
 	teamsLayout:SetSpaceX(5)
 	teamsLayout:SetSpaceY(5)
 	
 	if door:getKeysDoorTeams() then
 		for k,v in pairs(door:getKeysDoorTeams()) do
 			local teamItem = teamsLayout:Add("mgStatusLabel")
-			teamItem:SetType("primary")
+			teamItem:SetType(k == LocalPlayer():Team() and "success" or "primary")
 			teamItem:SetText(team.GetName(k))
 			teamItem:SizeToContents(true)
-			teamItem:SetHeight(32)
 		end
 	else
 		local noTeams = teamsLayout:Add("mgStatusLabel")
 		noTeams:SetType("primary")
 		noTeams:SetText("this door has no teams assigned")
 		noTeams:SizeToContents(true)
-		noTeams:SetHeight(32)
 	end
 	return pnl_information
 end
