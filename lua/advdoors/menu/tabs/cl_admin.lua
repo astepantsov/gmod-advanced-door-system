@@ -24,7 +24,7 @@ TAB.Function = function(frame, door)
 	BoolOwnership.OnValueChanged = function(value)
 		RunConsoleCommand("darkrp", "toggleownable")
 		BoolOwnership:SetDisabled(true)
-		timer.Simple(1, function()
+		timer.Simple(1.5, function()
 			if frame and IsValid(frame) and BoolOwnership and IsValid(BoolOwnership) then
 				BoolOwnership:SetDisabled(false)
 			end
