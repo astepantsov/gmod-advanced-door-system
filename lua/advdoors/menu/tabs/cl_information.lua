@@ -39,12 +39,12 @@ TAB.Function = function(frame, door)
 	coownerLayout:SetSpaceY(5)
 	local hNew = 0;
 	local testtable = {
+	{"TestNameasdasdasdasdsdadas", "76561198079040229"},
+	{"TestName", "76561197997600622"},
 	{"TestName", "TestSteamID"},
 	{"TestName", "TestSteamID"},
 	{"TestName", "TestSteamID"},
-	{"TestName", "TestSteamID"},
-	{"TestName", "TestSteamID"},
-	{"TestName", "TestSteamID"},
+	{"TestName132321321321123213312", "TestSteamID"},
 	{"TestName", "TestSteamID"},
 	{"TestName", "TestSteamID"},
 	{"TestName", "TestSteamID"},
@@ -67,9 +67,13 @@ TAB.Function = function(frame, door)
 			coownerItem:SetSteamID(v:SteamID64())
 			coownerItem:SetType("Player")
 			if elements == 3 then
-				local CoownersMore = coownerLayout:Add("mgButton")
+				local CoownersMore = coownerLayout:Add("mgMenu")
 				CoownersMore:SetText("and " .. (#coOwners - elements) .. " more")
-				CoownersMore:SetSize(110, 32) 
+				CoownersMore:SetSize(110, 32)
+				CoownersMore.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
+				for l = 4, #coOwners, 1 do
+					CoownersMore:AddChoice(coOwners[l]:Name(), coOwners[l]:SteamID64())
+				end
 				break
 			end
 		end
@@ -78,7 +82,7 @@ TAB.Function = function(frame, door)
 		coownerLayout:SetPos(pos_x, pos_y + 8);
 		local noCoowners = coownerLayout:Add("mgStatusLabel")
 		noCoowners:SetType("primary")
-		noCoowners:SetText("this door has no coowners")
+		noCoowners:SetText("This door has no coowners")
 		noCoowners:SizeToContents(true) 
 	end
 
@@ -107,18 +111,37 @@ TAB.Function = function(frame, door)
 	teamsLayout:SetPos(10 + labelTeams:GetWide(), y + labelGroupOwner:GetTall() + 16)
 	teamsLayout:SetSpaceX(5)
 	teamsLayout:SetSpaceY(5)
+	local teamWidth = 0
+	local teamCount = 0
+	local doorTeams = door:getKeysDoorTeams()
 	
-	if door:getKeysDoorTeams() then
-		for k,v in pairs(door:getKeysDoorTeams()) do
+	if doorTeams then
+		for k,v in pairs(doorTeams) do
+			if (teamWidth + 100 > teamsLayout:GetWide() - labelTeams:GetWide()) then
+				local teamsMore = teamsLayout:Add("mgMenu")
+				teamsMore:SetText("and " .. (#doorTeams - teamCount) .. " more")
+				teamsMore:SetSize(100, 18)
+				teamsMore.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
+				for l,p in pairs(doorTeams) do
+					if l >= k then
+						teamsMore:AddChoice(team.GetName(l), "")
+					end
+				end
+				break
+			end			
 			local teamItem = teamsLayout:Add("mgStatusLabel")
 			teamItem:SetType(k == LocalPlayer():Team() and "success" or "primary")
 			teamItem:SetText(team.GetName(k))
 			teamItem:SizeToContents(true)
+			teamItem:InvalidateLayout(true)
+			
+			teamWidth = teamWidth + teamItem:GetWide()
+			teamCount = teamCount + 1
 		end
 	else
 		local noTeams = teamsLayout:Add("mgStatusLabel")
 		noTeams:SetType("primary")
-		noTeams:SetText("this door has no teams assigned")
+		noTeams:SetText("This door has no teams assigned")
 		noTeams:SizeToContents(true)
 	end
 	return pnl_information

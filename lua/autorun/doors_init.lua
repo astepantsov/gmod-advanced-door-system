@@ -1,6 +1,7 @@
 print("[Advanced Door System] Loading...")
 AdvDoors = AdvDoors or {}
 AdvDoors.ManualLoad = {
+	"util/cl_mgui.lua",
 	"core/sv_configuration.lua",
 	"util/sh_meta.lua",
 	"core/sv_doorinfo.lua",

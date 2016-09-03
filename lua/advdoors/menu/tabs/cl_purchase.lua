@@ -18,15 +18,14 @@ TAB.Function = function(frame, door)
 	Label_Purchase:SetFont(fontMenu)
 	Label_Purchase:SizeToContents()
 
-	
 	local Label_Price = vgui.Create("mgStatusLabel", pnl_purchase)
-	Label_Price:SetPos(10 + Label_Purchase:GetWide(), 10)
+	Label_Price:SetPos(10 + Label_Purchase:GetWide(), 8)
 	Label_Price:SetType("primary")
 	Label_Price:SetText(DarkRP.formatMoney(door:getDoorPrice() or GAMEMODE.Config.doorcost))
 	Label_Price:SizeToContents(true)
-
+	
 	local Button_Purchase = vgui.Create("mgButton", pnl_purchase)
-	Button_Purchase:SetPos(15 + Label_Price:GetWide() + Label_Purchase:GetWide(), 5)
+	Button_Purchase:SetPos(Label_Price:GetWide() + Label_Purchase:GetWide(), 3)
 	Button_Purchase:SetSize(100, Label_Price:GetTall() + 10)
 	Button_Purchase:SetText("Purchase")
 	Button_Purchase.DoClick = function()
