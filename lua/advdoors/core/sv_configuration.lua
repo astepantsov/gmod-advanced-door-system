@@ -2,8 +2,12 @@ util.AddNetworkString("advdoors_sendconfig")
 
 AdvDoors.Configuration = AdvDoors.Configuration or {}
 AdvDoors.Configuration.Default = {
+	General = {
+		doorPropBlacklist = {}
+	},
 	[game.GetMap()] = {
-		DoorPrices = {}
+		DoorPrices = {},
+		blacklistedDoors = {}
 	}
 }
 
@@ -26,7 +30,7 @@ AdvDoors.Configuration.Load = function()
 
 	AdvDoors.Configuration.Loaded = config
 
-	MsgC(Color(0, 255, 0), "[Advanced Door System] Configuration has been loaded.")
+	MsgC(Color(0, 255, 0), "[Advanced Door System] Configuration has been loaded.\n")
 end
 
 AdvDoors.Configuration.getGeneralConfig = function()
@@ -37,12 +41,35 @@ AdvDoors.Configuration.getMapConfig = function()
 	return AdvDoors.Configuration.Loaded[game.GetMap()]
 end
 
+AdvDoors.Configuration.SetValue = function(type, name, value)
+	AdvDoors.Configuration.Loaded[type == "map" and game.GetMap() or "General"][name] = value
+	AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
+	AdvDoors.Configuration.Broadcast()
+end
+
+AdvDoors.Configuration.GetField = function(type, name)
+	return AdvDoors.Configuration.Loaded[type == "map" and game.GetMap() or "General"][name]
+end
+
+AdvDoors.Configuration.Broadcast = function()
+	net.Start("advdoors_sendconfig")
+	net.WriteTable(AdvDoors.Configuration.Loaded)
+	net.Broadcast()
+end
+
 AdvDoors.Configuration.Load();
 
 local function loadClientConfig(ply)
 	net.Start("advdoors_sendconfig")
-	net.WriteTable(AdvDoors.Configuration.Loaded);
+	net.WriteTable(AdvDoors.Configuration.Loaded)
 	net.Send(ply)
 end
 
 hook.Add("PlayerInitialSpawn", "AdvancedDoorSystem_ConfigurationLoad", loadClientConfig)
+
+net.Receive("advdoors_sendconfig", function( len, ply )
+	if IsValid(ply) and ply:IsSuperAdmin() then
+		local data = net.ReadTable()
+		AdvDoors.Configuration.SetValue(data.type, data.name, data.value)
+	end
+end)

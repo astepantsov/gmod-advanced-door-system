@@ -12,7 +12,6 @@ AdvDoors.ManualLoad = {
 	"util/sh_util.lua",
 	"hud/cl_hud.lua",
 	"menu/tabs/cl_information.lua",
-	"menu/tabs/cl_purchase.lua",
 	"menu/tabs/cl_management.lua",
 	"menu/tabs/cl_modifications.lua",
 	"menu/tabs/cl_admin.lua",

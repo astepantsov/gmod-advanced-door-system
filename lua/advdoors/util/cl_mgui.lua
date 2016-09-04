@@ -1541,6 +1541,7 @@ function PANEL:Init()
 	self.Weapon = false
 	self.Clickable = false
 	self.Hovered = false
+	self:SetText("")
 end
 
 function PANEL:SetSteamID(steamid)
@@ -1635,7 +1636,7 @@ function PANEL:SetType(type)
 	styles[type](self)
 end
 
-vgui.Register("mgItem", PANEL, "DPanel")
+vgui.Register("mgItem", PANEL, "DButton")
 --[[ END: mgui/mgItem.lua ]]--
 
 

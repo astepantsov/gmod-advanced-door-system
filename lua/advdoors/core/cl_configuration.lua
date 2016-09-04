@@ -18,3 +18,15 @@ end
 AdvDoors.Configuration.getMapConfig = function()
 	return AdvDoors.Configuration.Loaded[game.GetMap()]
 end
+
+AdvDoors.Configuration.GetField = function(type, name)
+	return AdvDoors.Configuration.Loaded[type == "map" and game.GetMap() or "General"][name]
+end
+
+AdvDoors.Configuration.SetValue = function(type, name, value)
+	if LocalPlayer():IsSuperAdmin() then
+		net.Start("advdoors_sendconfig")
+		net.WriteTable({type = type, name = name, value = value})
+		net.SendToServer()
+	end
+end

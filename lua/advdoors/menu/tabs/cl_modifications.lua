@@ -13,7 +13,12 @@ TAB.Function = function(frame, door)
 	pnl_modifications:SetSize(frame:GetWide() - 10, frame:GetTall() - 80)
 	pnl_modifications:SetVisible(false)
 	
+	pnl_modifications.PaintOver = function()
+		surface.SetDrawColor(mgui.Colors.Blue)
+		surface.DrawOutlinedRect(0, 0, pnl_modifications:GetWide(), pnl_modifications:GetTall())
+	end
+	
 	return pnl_modifications
 end
 
-AdvDoors.AddMenuTab(TAB, 4)
+AdvDoors.AddMenuTab(TAB, 3)

@@ -15,24 +15,6 @@ if CLIENT then
             callback(mat)
         end)
     end 
-
-    AdvDoors.isLocked = function(door)
-        return door:GetNWBool("AdvDoors_isLocked", false)
-    end
-
-    AdvDoors.getOwnerName = function(door)
-        if door:getDoorOwner() and door:getDoorOwner() != nil and IsValid(door:getDoorOwner()) then
-            return door:getDoorOwner():Nick()
-        end
-        return false
-    end
-	
-	AdvDoors.getOwnerSteamID64 = function(door)
-		if door:getDoorOwner() and door:getDoorOwner() != nil and IsValid(door:getDoorOwner()) then
-            return door:getDoorOwner():SteamID64()
-        end
-        return false
-	end
 	
 	AdvDoors.AddMenuTab = function(tab, id)
 		if !id then
@@ -41,4 +23,29 @@ if CLIENT then
 			AdvDoors.MenuTabs[id] = tab
 		end
 	end
+end
+
+AdvDoors.isLocked = function(door)
+	return door:GetNWBool("AdvDoors_isLocked", false)
+end
+
+AdvDoors.getOwner = function(door)
+	if door:getDoorOwner() and door:getDoorOwner() != nil and IsValid(door:getDoorOwner()) then
+		return door:getDoorOwner()
+	end
+	return false
+end
+	
+AdvDoors.getOwnerName = function(door)
+	if door:getDoorOwner() and door:getDoorOwner() != nil and IsValid(door:getDoorOwner()) then
+		return door:getDoorOwner():Nick()
+	end
+	return false
+end
+	
+AdvDoors.getOwnerSteamID64 = function(door)
+	if door:getDoorOwner() and door:getDoorOwner() != nil and IsValid(door:getDoorOwner()) then
+		return door:getDoorOwner():SteamID64()
+	end
+	return false
 end

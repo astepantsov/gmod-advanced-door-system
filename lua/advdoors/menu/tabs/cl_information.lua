@@ -15,6 +15,9 @@ TAB.Function = function(frame, door)
 	pnl_information:SetSize(frame:GetWide() - 10, frame:GetTall() - 80)
 	pnl_information:SetVisible(false)
 	
+	local isOwned = AdvDoors.getOwner(door)
+	local ownerName = AdvDoors.getOwnerName(door)
+	
 	local labelOwner = vgui.Create("DLabel", pnl_information)
 	labelOwner:SetPos(5, 16)
 	labelOwner:SetText("Owner: ")
@@ -23,9 +26,14 @@ TAB.Function = function(frame, door)
 	local ownerItem = vgui.Create("mgItem", pnl_information)
 	ownerItem:SetPos(10 + labelOwner:GetWide(), 10)
 	ownerItem:SetSize(110, 32)
-	ownerItem:SetName(AdvDoors.getOwnerName(door) or "No owner") 
+	ownerItem:SetName(ownerName or "No owner") 
 	ownerItem:SetSteamID(AdvDoors.getOwnerSteamID64(door) or "")
 	ownerItem:SetType("Player")
+	if ownerName then
+		ownerItem.DoClick = function()
+			gui.OpenURL("http://steamcommunity.com/profiles/" .. AdvDoors.getOwnerSteamID64(door) .. "/")
+		end
+	end
 	
 	local labelCoowner = vgui.Create("DLabel", pnl_information)
 	labelCoowner:SetPos(5, 54)
@@ -144,6 +152,71 @@ TAB.Function = function(frame, door)
 		noTeams:SetText("This door has no teams assigned")
 		noTeams:SizeToContents(true)
 	end
+	
+	x, y = labelTeams:GetPos()
+	
+	local labelPurchase = vgui.Create("DLabel", pnl_information)
+	labelPurchase:SetPos(5, y + labelTeams:GetTall() + 15)
+	labelPurchase:SetText("Buy a door for")
+	labelPurchase:SetFont(fontMenu)
+	labelPurchase:SizeToContents()
+	labelPurchase:InvalidateLayout(true)
+
+	local labelPrice = vgui.Create("mgStatusLabel", pnl_information)
+	labelPrice:SetPos(10 + labelPurchase:GetWide(), y + labelTeams:GetTall() + 15)
+	labelPrice:SetType("primary")
+	labelPrice:SetText(DarkRP.formatMoney(door:getDoorPrice() or GAMEMODE.Config.doorcost))
+	labelPrice:SizeToContents(true)
+	
+	local buttonPurchase = vgui.Create("mgButton", pnl_information)
+	buttonPurchase:SetPos(labelPurchase:GetWide() + labelPrice:GetWide(), y + labelTeams:GetTall() + 10)
+	buttonPurchase:SetSize(100, labelPrice:GetTall() + 10)
+	buttonPurchase:SetText("Purchase")
+	buttonPurchase.DoClick = function()
+		RunConsoleCommand("darkrp", "toggleown")
+		net.Receive("advdoors_purchased", function()
+			if frame and IsValid(frame) then
+				frame:Remove()
+				AdvDoors.openMenu(door)
+				mgui.Notify("You have bought this door for " .. DarkRP.formatMoney(door:getDoorPrice() or GAMEMODE.Config.doorcost))
+			end
+		end)
+	end
+		
+	if isOwned then
+		buttonPurchase:SetDisabled(true)
+		local labelOwned = vgui.Create("mgStatusLabel", pnl_information)
+		labelOwned:SetPos(labelPrice:GetWide() + labelPurchase:GetWide() + buttonPurchase:GetWide() + 5, y + labelTeams:GetTall() + 15)
+		labelOwned:SetType(isOwned == LocalPlayer() and "success" or "danger")
+		labelOwned:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot purchase it" or "This door is owned already and cannot be purchased")
+		labelOwned:SizeToContents(true)
+	end
+	
+	local labelRent = vgui.Create("DLabel", pnl_information)
+	labelRent:SetPos(5, select(2, labelPurchase:GetPos()) + labelPurchase:GetTall() + 15)
+	labelRent:SetText("Rent this door for ")
+	labelRent:SetFont(fontMenu)
+	labelRent:SizeToContents()
+	labelRent:InvalidateLayout(true)
+	
+	local labelRentInfo = vgui.Create("mgStatusLabel", pnl_information)
+	labelRentInfo:SetPos(10 + labelRent:GetWide(), select(2, labelRent:GetPos()))
+	labelRentInfo:SetType(isOwned == LocalPlayer() and "success" or door:GetNWBool("canRent", false) == true and "primary" or isOwned and "danger" or "warning")
+	labelRentInfo:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot rent it" or door:GetNWBool("canRent", false) == true and door:GetNWFloat("rentPrice") .. "$ / " .. door:GetNWFloat("rentLength") .. " minute(s)" or isOwned and "Owner of this door doesn't want to rent it out" or "You cannot rent this door as it is not owned by anyone yet")
+	labelRentInfo:SizeToContents(true)
+	
+	pnl_information.PaintOver = function()
+		surface.SetDrawColor(mgui.Colors.Blue)
+		surface.DrawOutlinedRect(0, 0, pnl_information:GetWide(), pnl_information:GetTall())
+		surface.DrawLine(0, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 5, pnl_information:GetWide(), select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 5)
+		if isOwned then
+			surface.SetDrawColor(37, 37, 37, 150)
+			surface.DrawRect(1, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 6, pnl_information:GetWide() - 2, labelPurchase:GetTall() + 18)
+		end
+		surface.SetDrawColor(mgui.Colors.Blue)
+		surface.DrawLine(0, select(2, labelPurchase:GetPos()) + labelPurchase:GetTall() + 8, pnl_information:GetWide(), select(2, labelPurchase:GetPos()) + labelPurchase:GetTall() + 8)
+	end
+	
 	return pnl_information
 end
 
