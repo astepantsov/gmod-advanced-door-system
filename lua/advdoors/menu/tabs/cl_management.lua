@@ -61,8 +61,8 @@ TAB.Function = function(frame, door)
 		net.WriteTable({
 			door = door,
 			canRent = boolRent:GetValue(),
-			rentPrice = textAmountRent:GetFloat(),
-			rentLength = textAmountRent:GetFloat()
+			rentPrice = tonumber(textAmountRent:GetValue()) or "",
+			rentLength = tonumber(sliderLengthRent:GetValue()) or ""
 		})
 		net.SendToServer()
 		net.Receive("advdoors_updaterent", function(len)
