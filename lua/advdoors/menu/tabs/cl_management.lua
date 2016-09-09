@@ -52,6 +52,18 @@ TAB.Function = function(frame, door)
 	sliderLengthRent:SetValue(door:GetNWFloat("rentLength", 1) - 1)
 	sliderLengthRent:SizeToContents()
 	
+	local labelPeriodsRent = vgui.Create("DLabel", pnl_management)
+	labelPeriodsRent:SetPos(5, 40 + select(2, labelLengthRent:GetPos()))
+	labelPeriodsRent:SetText("Maximum amount of periods:")
+	labelPeriodsRent:SetFont(fontMenu)
+	labelPeriodsRent:SizeToContents()
+	labelPeriodsRent:InvalidateLayout(true) 
+	
+	local textPeriodsRent = vgui.Create("mgTextEntry", pnl_management)
+	textPeriodsRent:SetPos(10 + labelPeriodsRent:GetWide(), select(2, labelPeriodsRent:GetPos()));
+	textPeriodsRent:SetSize(100, 16)
+	textPeriodsRent:SetValue(door:GetNWFloat("rentMaxPeriods", 1))
+	
 	local buttonUpdateRent = vgui.Create("mgButton", pnl_management)
 	buttonUpdateRent:SetPos(pnl_management:GetWide() - 106, select(2, sliderLengthRent:GetPos()) + sliderLengthRent:GetTall() + 5)
 	buttonUpdateRent:SetSize(100, 16)
@@ -62,7 +74,8 @@ TAB.Function = function(frame, door)
 			door = door,
 			canRent = boolRent:GetValue(),
 			rentPrice = tonumber(textAmountRent:GetValue()) or "",
-			rentLength = tonumber(sliderLengthRent:GetValue()) or ""
+			rentLength = math.Round(tonumber(sliderLengthRent:GetValue())) or "",
+			rentMaxPeriods = tonumber(textPeriodsRent:GetValue()) or ""
 		})
 		net.SendToServer()
 		net.Receive("advdoors_updaterent", function(len)

@@ -49,3 +49,12 @@ AdvDoors.getOwnerSteamID64 = function(door)
 	end
 	return false
 end
+
+AdvDoors.getByUserID = function(userid)
+	for k,v in ipairs(player.GetAll()) do
+		if v:UserID() == userid then
+			return v
+		end
+	end
+	return false
+end
