@@ -111,6 +111,18 @@ TAB.Function = function(frame, door)
 		end)
 	end
 	
+	local labelCoownerAdd = vgui.Create("DLabel", pnl_management)
+	labelCoownerAdd:SetPos(5, select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 15)
+	labelCoownerAdd:SetText("Add a coowner:")
+	labelCoownerAdd:SetFont(fontMenu)
+	labelCoownerAdd:SizeToContents()
+	labelCoownerAdd:InvalidateLayout(true) 
+	
+	local playerList = vgui.Create("mgPlayerList", pnl_management)
+	playerList:SetPos(10 + labelCoownerAdd:GetWide(), select(2, labelCoownerAdd:GetPos()) - 5)
+	playerList:SetSize(100, labelCoownerAdd:GetTall() + 10)
+	playerList:RemoveByData(LocalPlayer())
+	
 	pnl_management.PaintOver = function()
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_management:GetWide(), pnl_management:GetTall())

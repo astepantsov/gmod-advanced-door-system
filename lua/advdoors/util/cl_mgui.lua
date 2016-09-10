@@ -1657,6 +1657,14 @@ function PANEL:AddChoice(value, data)
 	table.insert(self._values, {value, data})
 end
 
+function PANEL:RemoveByData(data)
+	for k,v in pairs(self._values) do
+		if v[2] == data then
+			table.remove(self._values, k)
+		end
+	end
+end
+
 function PANEL:GetValue()
 	return self.__selected[1], self.__selected[2]
 end
