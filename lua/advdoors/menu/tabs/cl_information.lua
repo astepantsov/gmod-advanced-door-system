@@ -64,24 +64,26 @@ TAB.Function = function(frame, door)
 	coownerLayout:SetSpaceY(5)
 	local elements = 0;
 	local coOwners = door:getKeysCoOwners()
-	if coOwners then
+	if coOwners and AdvDoors.hasValidCoowner(coOwners) then
 		for k,v in pairs(coOwners) do
 			elements = elements + 1;
 			local ply = AdvDoors.getByUserID(k)
-			local coownerItem = coownerLayout:Add("mgItem")
-			coownerItem:SetSize(110, 32)
-			coownerItem:SetName(ply:Name()) 
-			coownerItem:SetSteamID(ply:SteamID64())
-			coownerItem:SetType("Player")
-			if elements == 3 then
-				local CoownersMore = coownerLayout:Add("mgMenu")
-				CoownersMore:SetText("and " .. (#coOwners - elements) .. " more")
-				CoownersMore:SetSize(110, 32)
-				CoownersMore.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
-				for l = 4, #coOwners, 1 do
-					CoownersMore:AddChoice(coOwners[l]:Name(), coOwners[l]:SteamID64())
+			if IsValid(ply) and ply:IsPlayer() then
+				local coownerItem = coownerLayout:Add("mgItem")
+				coownerItem:SetSize(110, 32)
+				coownerItem:SetName(ply:Name()) 
+				coownerItem:SetSteamID(ply:SteamID64())
+				coownerItem:SetType("Player")
+				if elements == 3 then
+					local CoownersMore = coownerLayout:Add("mgMenu")
+					CoownersMore:SetText("and " .. (#coOwners - elements) .. " more")
+					CoownersMore:SetSize(110, 32)
+					CoownersMore.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
+					for l = 4, #coOwners, 1 do
+						CoownersMore:AddChoice(coOwners[l]:Name(), coOwners[l]:SteamID64())
+					end
+					break
 				end
-				break
 			end
 		end
 	else
@@ -205,34 +207,42 @@ TAB.Function = function(frame, door)
 	labelRentInfo:SizeToContents(true)
 	
 	local labelRentPeriods = vgui.Create("DLabel", pnl_information)
-	labelRentPeriods:SetPos(5, select(2, labelRent:GetPos()) + labelRent:GetTall() + 15)
+	labelRentPeriods:SetPos(5, select(2, labelRent:GetPos()) + labelRent:GetTall() + 8)
 	labelRentPeriods:SetText("Amount of periods: ")
 	labelRentPeriods:SetFont(fontMenu)
 	labelRentPeriods:SizeToContents()
 	labelRentPeriods:InvalidateLayout(true)
 	
-	local sliderRentPeriods = vgui.Create("mgSlider", pnl_information)
-	sliderRentPeriods:SetPos(10 + labelRentPeriods:GetWide(), select(2, labelRentPeriods:GetPos()) + 3)
-	sliderRentPeriods:ShowAmount(true)
-	sliderRentPeriods:SetMinMax(1, door:GetNWFloat("rentMaxPeriods", 1))
-	sliderRentPeriods:SetValue(0)
-	sliderRentPeriods:SizeToContents()
+	local sliderRentPeriods = door:GetNWFloat("rentMaxPeriods", 1) == 1 and vgui.Create("mgStatusLabel", pnl_information) or vgui.Create("mgSlider", pnl_information)
+	sliderRentPeriods:SetPos(10 + labelRentPeriods:GetWide(), select(2, labelRentPeriods:GetPos()))
+	if door:GetNWFloat("rentMaxPeriods", 1) != 1 then
+		sliderRentPeriods:ShowAmount(true)
+		sliderRentPeriods:SetMinMax(1, door:GetNWFloat("rentMaxPeriods", 1))
+		sliderRentPeriods:SetValue(0)
+		sliderRentPeriods:SizeToContents()
+	else
+		sliderRentPeriods:SetType("warning")
+		sliderRentPeriods:SetText("You can't change the amount of periods for this door")
+		sliderRentPeriods:SizeToContents(true)
+	end
+	sliderRentPeriods:InvalidateLayout(true)
 	
 	local labelResult = vgui.Create("DLabel", pnl_information)
-	labelResult:SetPos(5, select(2, labelRentPeriods:GetPos()) + labelRentPeriods:GetTall() + 30)
+	labelResult:SetPos(5, select(2, sliderRentPeriods:GetPos()) + sliderRentPeriods:GetTall() + 8)
 	labelResult:SetText("You will pay ")
 	labelResult:SetFont(fontMenu)
 	labelResult:SizeToContents()
 	labelResult:InvalidateLayout(true)
 	
 	local labelResultMoney = vgui.Create("mgStatusLabel", pnl_information)
-	labelResultMoney:SetPos(10 + labelResult:GetWide(), select(2, labelResult:GetPos()))
+	labelResultMoney:SetPos(10 + labelResult:GetWide(), select(2, sliderRentPeriods:GetPos()) + sliderRentPeriods:GetTall() + 8)
 	labelResultMoney:SetType("warning")
-	labelResultMoney:SetText(door:GetNWBool("canRent", false) and DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())) .. " for " .. (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue())) .. " minute(s)" or "unknown")
+	labelResultMoney:SetText((door:GetNWFloat("rentMaxPeriods", 1) == 1 and door:GetNWBool("canRent", false)) and DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " for " .. door:GetNWFloat("rentLength") .. " minute(s)" or door:GetNWBool("canRent", false) and DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())) .. " for " .. (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue())) .. " minute(s)" or "unknown")
 	labelResultMoney:SizeToContents(true)
 
+	
 	sliderRentPeriods.Think = function()
-		labelResultMoney:SetText(door:GetNWBool("canRent", false) and DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())) .. " for " .. (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue())) .. " minute(s)" or "unknown")
+		labelResultMoney:SetText((door:GetNWFloat("rentMaxPeriods", 1) == 1 and door:GetNWBool("canRent", false)) and DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " for " .. door:GetNWFloat("rentLength") .. " minute(s)" or door:GetNWBool("canRent", false) and DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())) .. " for " .. (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue())) .. " minute(s)" or "unknown")
 		labelResultMoney:SizeToContents(true)
 	end
 	
@@ -247,7 +257,7 @@ TAB.Function = function(frame, door)
 		net.Start("advdoors_rent")
 		net.WriteTable({
 			door = door,
-			periods = math.Round(tonumber(sliderRentPeriods:GetValue()))
+			periods = math.Round(tonumber(door:GetNWFloat("rentMaxPeriods", 1) == 1 and 1 or sliderRentPeriods:GetValue()))
 		})
 		net.SendToServer()
 		net.Receive("advdoors_rent", function(len)
@@ -272,7 +282,7 @@ TAB.Function = function(frame, door)
 		surface.DrawLine(0, select(2, buttonRent:GetPos()) + buttonRent:GetTall() + 4, pnl_information:GetWide(), select(2, buttonRent:GetPos()) + buttonRent:GetTall() + 4)
 		if !rentActive then
 			surface.SetDrawColor(37, 37, 37, 150)
-			surface.DrawRect(1, select(2, labelPurchase:GetPos()) + labelPurchase:GetTall() + 9, pnl_information:GetWide() - 2, labelRent:GetTall() + sliderRentPeriods:GetTall() + labelResult:GetTall() + 49)
+			surface.DrawRect(1, select(2, labelPurchase:GetPos()) + labelPurchase:GetTall() + 9, pnl_information:GetWide() - 2, select(2, buttonRent:GetPos()) + buttonRent:GetTall() + 3 - (select(2, labelPurchase:GetPos()) + labelPurchase:GetTall() + 8))
 		end
 	end
 		

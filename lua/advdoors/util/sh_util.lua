@@ -1,5 +1,5 @@
 if CLIENT then
-	AdvDoors.MenuTabs = {}
+	AdvDoors.MenuTabs = AdvDoors.MenuTabs or {}
     AdvDoors.DownloadMaterial = function(url, callback)
         local crc = util.CRC(url)
         
@@ -54,6 +54,16 @@ AdvDoors.getByUserID = function(userid)
 	for k,v in ipairs(player.GetAll()) do
 		if v:UserID() == userid then
 			return v
+		end
+	end
+	return false
+end
+
+AdvDoors.hasValidCoowner = function(coOwners)
+	for k,v in pairs(coOwners) do
+		local ply = AdvDoors.getByUserID(k)
+		if IsValid(ply) and ply:IsPlayer() then 
+			return true 
 		end
 	end
 	return false

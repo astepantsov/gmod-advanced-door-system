@@ -83,10 +83,14 @@ function draw.CornerBox(origin_x, origin_y, x, y, length, color)
 	draw.Corner(origin_x + x, origin_y + y, CORNER_LEFT, CORNER_UP, length, color)
 end
 
-local locked, unlocked
+local locked, unlocked, rent
 
 AdvDoors.DownloadMaterial("http://i.imgur.com/kyXExEL.png", function(self) locked = self end) -- Icon made by http://www.flaticon.com/authors/madebyoliver from www.flaticon.com
 AdvDoors.DownloadMaterial("http://i.imgur.com/axjRFV1.png", function(self) unlocked = self end) -- Icon made by http://www.flaticon.com/authors/madebyoliver from www.flaticon.com
+AdvDoors.DownloadMaterial("http://i.imgur.com/qr9JX3t.png", function(self) rent = self end) -- Icon made by http://www.flaticon.com/authors/roundicons from www.flaticon.com
+
+local fadeColor = 0
+local fadeDirection = 1
 
 hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", function()
 	for _,v in pairs(GenerateDoorList()) do
@@ -130,6 +134,21 @@ hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", f
 			surface.DrawLine(-w/2 + 64, -h/2 + 60, -w/2 + 64, -h/2 + 124)
 			draw.CornerBox(-w/2, -h/2 + 124, w, 60, 10, Color(255, 255, 255, 150));
 			draw.SimpleText((AdvDoors.getOwnerName(v.Entity) or v.Entity:getKeysDoorGroup() or (v.Entity:getKeysDoorTeams() and "specified jobs") or "Unowned"), "AdvDoorsMain", 0, -h/2 + 154, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			surface.SetDrawColor(Color(150, 150, 150, 50))
+			surface.DrawLine(-w/2, -h/2 + 184, w/2, -h/2 + 184)
+			surface.DrawLine(-w/2, -h/2 + 244, w/2, -h/2 + 244)
+			if (AdvDoors.getOwner(v.Entity) and v.Entity:GetNWBool("canRent", false) and not v.Entity:GetNWEntity("tenant", false)) then
+				fadeColor = fadeColor + fadeDirection * 7 * FrameTime();
+				if fadeColor >= 100 then fadeDirection = -1 elseif fadeColor <= 0 then fadeDirection = 1 end
+				fadeColor = math.Clamp(fadeColor, 0, 100);
+				surface.SetDrawColor(Color(mgui.Colors.Red.r, mgui.Colors.Red.g, mgui.Colors.Red.b, fadeColor))
+				surface.DrawRect(-w/2 + 2, -h/2 + 184, w-2, 60)
+			end
+			draw.SimpleText((AdvDoors.getOwner(v.Entity) and v.Entity:GetNWBool("canRent", false) and not v.Entity:GetNWEntity("tenant", false)) and "Available for rent" or "Not available for rent", "AdvDoorsMain", 0, -h/2 + 214, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			surface.SetMaterial(rent)
+			surface.SetDrawColor(255, 255, 255, 255)
+			surface.DrawTexturedRect(-w/2 + 2, -h/2 + 184, 60, 60)
+			draw.CornerBox(-w/2, -h/2 + 184, w, 60, 10, Color(255, 255, 255, 150));
 			draw.CornerBox(-w/2, h/2 - 60, w, 60, 10, Color(255, 255, 255, 150));
 			local PosLocal = v.Entity:WorldToLocal(v.Position)
 			surface.SetDrawColor(Color(150, 150, 150, 50))
