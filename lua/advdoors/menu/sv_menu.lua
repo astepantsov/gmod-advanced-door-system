@@ -17,6 +17,17 @@ end
 
 hook.Add("playerBoughtDoor", "AdvancedDoorSystem_DoorBoughtRefresh", boughtDoor)
 
+local function soldDoor(ply, door)
+	if door:isDoor() then
+		door:SetNWBool("canRent", false)
+		door:SetNWFloat("rentPrice", 1)
+		door:SetNWFloat("rentLength", 1)
+		door:SetNWFloat("rentMaxPeriods", 1)
+	end
+end
+
+hook.Add("playerKeysSold", "AdvancedDoorSystem_DoorSold", soldDoor)
+
 net.Receive("advdoors_updaterent", function(len, ply)
 	local data = net.ReadTable()
 	if (AdvDoors.getOwner(data.door) == ply) then
@@ -58,6 +69,11 @@ hook.Add("PlayerDisconnected", "AdvancedDoorSystem_Disconnect", function(ply)
 	for _, door in pairs(ents.GetAll()) do
 		if door:isDoor() and door:GetNWEntity("tenant", false) == ply then
 			door:SetNWEntity("tenant", false)
+		elseif door:isDoor() and door:isMasterOwner(ply) then
+			door:SetNWBool("canRent", false)
+			door:SetNWFloat("rentPrice", false)
+			door:SetNWFloat("rentLength", false)
+			door:SetNWFloat("rentMaxPeriods", false)
 		end
 	end
 end)

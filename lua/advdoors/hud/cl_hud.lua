@@ -90,7 +90,8 @@ AdvDoors.DownloadMaterial("http://i.imgur.com/axjRFV1.png", function(self) unloc
 AdvDoors.DownloadMaterial("http://i.imgur.com/qr9JX3t.png", function(self) rent = self end) -- Icon made by http://www.flaticon.com/authors/roundicons from www.flaticon.com
 
 local fadeColor = 0
-local fadeDirection = 1
+local fadeDirection = true
+local fadeStart = CurTime();
 
 hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", function()
 	for _,v in pairs(GenerateDoorList()) do
@@ -138,9 +139,9 @@ hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", f
 			surface.DrawLine(-w/2, -h/2 + 184, w/2, -h/2 + 184)
 			surface.DrawLine(-w/2, -h/2 + 244, w/2, -h/2 + 244)
 			if (AdvDoors.getOwner(v.Entity) and v.Entity:GetNWBool("canRent", false) and not v.Entity:GetNWEntity("tenant", false)) then
-				fadeColor = fadeColor + fadeDirection * 7 * FrameTime();
-				if fadeColor >= 100 then fadeDirection = -1 elseif fadeColor <= 0 then fadeDirection = 1 end
-				fadeColor = math.Clamp(fadeColor, 0, 100);
+				local fadeFraction = math.Clamp((CurTime() - fadeStart) / 1.5, 0, 1);
+				fadeColor = Lerp(fadeFraction, fadeDirection and 0 or 100, fadeDirection and 100 or 0); 
+				if fadeColor >= 100 then fadeDirection = false; fadeStart = CurTime() elseif fadeColor <= 0 then fadeDirection = true; fadeStart = CurTime() end
 				surface.SetDrawColor(Color(mgui.Colors.Red.r, mgui.Colors.Red.g, mgui.Colors.Red.b, fadeColor))
 				surface.DrawRect(-w/2 + 2, -h/2 + 184, w-2, 60)
 			end
