@@ -83,10 +83,39 @@ TAB.Function = function(frame, door)
 		end)
 	end
 	
+	local labelSell = vgui.Create("DLabel", pnl_management)
+	labelSell:SetPos(5, select(2, buttonUpdateRent:GetPos()) + buttonUpdateRent:GetTall() + 15)
+	labelSell:SetText("Sell this door for ")
+	labelSell:SetFont(fontMenu)
+	labelSell:SizeToContents()
+	labelSell:InvalidateLayout(true) 
+	
+	local labelSellPrice = vgui.Create("mgStatusLabel", pnl_management)
+	labelSellPrice:SetPos(10 + labelSell:GetWide(), select(2, labelSell:GetPos()))
+	labelSellPrice:SetType("primary")
+	labelSellPrice:SetText(DarkRP.formatMoney(door:getDoorSellPrice() or math.Round(GAMEMODE.Config.doorcost * 2 / 3)))
+	labelSellPrice:SizeToContents(true)
+	
+	local buttonSell = vgui.Create("mgButton", pnl_management)
+	buttonSell:SetPos(labelSell:GetWide() + labelSellPrice:GetWide(), select(2, labelSell:GetPos()) - 5)
+	buttonSell:SetSize(100, labelSell:GetTall() + 10)
+	buttonSell:SetText("Sell")
+	buttonSell.DoClick = function()
+		RunConsoleCommand("darkrp", "toggleown")
+		net.Receive("advdoors_sold", function()
+			if frame and IsValid(frame) then
+				frame:Remove()
+				AdvDoors.openMenu(door)
+				mgui.Notify("You have sold this door for " .. DarkRP.formatMoney(door:getDoorSellPrice() or math.Round(GAMEMODE.Config.doorcost * 2 / 3)))
+			end
+		end)
+	end
+	
 	pnl_management.PaintOver = function()
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_management:GetWide(), pnl_management:GetTall())
 		surface.DrawLine(0, select(2, buttonUpdateRent:GetPos()) + buttonUpdateRent:GetTall() + 5, pnl_management:GetWide(), select(2, buttonUpdateRent:GetPos()) + buttonUpdateRent:GetTall() + 5)
+		surface.DrawLine(0, select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5, pnl_management:GetWide(), select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5)
 	end
 	
 	return pnl_management

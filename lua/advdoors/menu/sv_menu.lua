@@ -1,7 +1,7 @@
 util.AddNetworkString("advdoors_purchased")
 util.AddNetworkString("advdoors_updaterent")
 util.AddNetworkString("advdoors_rent")
-
+util.AddNetworkString("advdoors_sold")
 
 local function doorCost(ply, door)
 	return door:getDoorPrice() or GAMEMODE.Config.doorcost
@@ -23,6 +23,8 @@ local function soldDoor(ply, door)
 		door:SetNWFloat("rentPrice", 1)
 		door:SetNWFloat("rentLength", 1)
 		door:SetNWFloat("rentMaxPeriods", 1)
+		net.Start("advdoors_sold")
+		net.Send(ply)
 	end
 end
 
