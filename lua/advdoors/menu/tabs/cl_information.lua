@@ -174,14 +174,16 @@ TAB.Function = function(frame, door)
 	buttonPurchase:SetSize(100, labelPrice:GetTall() + 10)
 	buttonPurchase:SetText("Purchase")
 	buttonPurchase.DoClick = function()
-		RunConsoleCommand("darkrp", "toggleown")
-		net.Receive("advdoors_purchased", function()
-			if frame and IsValid(frame) then
-				frame:Remove()
-				AdvDoors.openMenu(door)
-				mgui.Notify("You have bought this door for " .. DarkRP.formatMoney(door:getDoorPrice() or GAMEMODE.Config.doorcost))
-			end
-		end)
+		mgui.ShowDialog("confirm", "Are you sure that you want to purchase this door?", function()
+			RunConsoleCommand("darkrp", "toggleown")
+			net.Receive("advdoors_purchased", function()
+				if frame and IsValid(frame) then
+					frame:Remove()
+					AdvDoors.openMenu(door)
+					mgui.Notify("You have bought this door for " .. DarkRP.formatMoney(door:getDoorPrice() or GAMEMODE.Config.doorcost))
+				end
+			end)
+		end, "Yes", "No")
 	end
 		
 	if isOwned and not door:isKeysAllowedToOwn(LocalPlayer()) then
@@ -254,19 +256,21 @@ TAB.Function = function(frame, door)
 	buttonRent:SetText("Rent this door")
 	buttonRent:SetDisabled(!rentActive)
 	buttonRent.DoClick = function()
-		net.Start("advdoors_rent")
-		net.WriteTable({
-			door = door,
-			periods = math.Round(tonumber(door:GetNWFloat("rentMaxPeriods", 1) == 1 and 1 or sliderRentPeriods:GetValue()))
-		})
-		net.SendToServer()
-		net.Receive("advdoors_rent", function(len)
-			if frame and IsValid(frame) then
-				frame:Remove()
-				AdvDoors.openMenu(door)
-				mgui.Notify("You have rent this door.")
-			end
-		end)
+		mgui.ShowDialog("confirm", "Are you sure that you want to rent this door?", function()
+			net.Start("advdoors_rent")
+			net.WriteTable({
+				door = door,
+				periods = math.Round(tonumber(door:GetNWFloat("rentMaxPeriods", 1) == 1 and 1 or sliderRentPeriods:GetValue()))
+			})
+			net.SendToServer()
+			net.Receive("advdoors_rent", function(len)
+				if frame and IsValid(frame) then
+					frame:Remove()
+					AdvDoors.openMenu(door)
+					mgui.Notify("You have rent this door.")
+				end
+			end)
+		end, "Yes", "No")
 	end
 	
 	pnl_information.PaintOver = function()

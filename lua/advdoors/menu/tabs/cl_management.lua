@@ -101,33 +101,57 @@ TAB.Function = function(frame, door)
 	buttonSell:SetSize(100, labelSell:GetTall() + 10)
 	buttonSell:SetText("Sell")
 	buttonSell.DoClick = function()
-		RunConsoleCommand("darkrp", "toggleown")
-		net.Receive("advdoors_sold", function()
-			if frame and IsValid(frame) then
-				frame:Remove()
-				AdvDoors.openMenu(door)
-				mgui.Notify("You have sold this door for " .. DarkRP.formatMoney(door:getDoorSellPrice() or math.Round(GAMEMODE.Config.doorcost * 2 / 3)))
-			end
-		end)
+		mgui.ShowDialog("confirm", "Are you sure that you want to sell this door?", function()
+			RunConsoleCommand("darkrp", "toggleown")
+			net.Receive("advdoors_sold", function()
+				if frame and IsValid(frame) then
+					frame:Remove()
+					AdvDoors.openMenu(door)
+					mgui.Notify("You have sold this door for " .. DarkRP.formatMoney(door:getDoorSellPrice() or math.Round(GAMEMODE.Config.doorcost * 2 / 3)))
+				end
+			end)
+		end, "Yes", "No")
 	end
 	
-	local labelCoownerAdd = vgui.Create("DLabel", pnl_management)
-	labelCoownerAdd:SetPos(5, select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 15)
-	labelCoownerAdd:SetText("Add a coowner:")
-	labelCoownerAdd:SetFont(fontMenu)
-	labelCoownerAdd:SizeToContents()
-	labelCoownerAdd:InvalidateLayout(true) 
+	local labelTitle = vgui.Create("DLabel", pnl_management)
+	labelTitle:SetPos(5, select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 15)
+	labelTitle:SetText(door:getKeysTitle() and "Current door title is " .. door:getKeysTitle() or "This door has no title")
+	labelTitle:SetFont(fontMenu)
+	labelTitle:SizeToContents()
+	labelTitle:InvalidateLayout(true)
 	
-	local playerList = vgui.Create("mgPlayerList", pnl_management)
-	playerList:SetPos(10 + labelCoownerAdd:GetWide(), select(2, labelCoownerAdd:GetPos()) - 5)
-	playerList:SetSize(100, labelCoownerAdd:GetTall() + 10)
-	playerList:RemoveByData(LocalPlayer())
+	local buttonChangeTitle = vgui.Create("mgButton", pnl_management)
+	buttonChangeTitle:SetPos(labelTitle:GetWide() + 10, select(2, labelTitle:GetPos()) - 5)
+	buttonChangeTitle:SetSize(100, labelTitle:GetTall() + 10)
+	buttonChangeTitle:SetText("Change")
+	buttonChangeTitle.DoClick = function()
+		mgui.ShowDialog("string", "Set door title", function(val)
+			net.Start("advdoors_settitle")
+			net.WriteTable({door = door, title = val})
+			net.SendToServer()
+			net.Receive("advdoors_settitle", function()
+				if frame and IsValid(frame) then
+					labelTitle:SetText(door:getKeysTitle() and "Current door title is " .. door:getKeysTitle() or "This door has no title")
+					labelTitle:SizeToContents()
+					buttonChangeTitle:SetPos(labelTitle:GetWide() + 10, select(2, labelTitle:GetPos()) - 5)
+				end
+			end)
+		end, "Set the door title (less than 30 characters)", door:getKeysTitle() or "")
+	end
+	
+	local labelCoOwner = vgui.Create("DLabel", pnl_management)
+	labelCoOwner:SetPos(5, select(2, buttonChangeTitle:GetPos()) + buttonChangeTitle:GetTall() + 15)
+	labelCoOwner:SetText("Add door owner: ")
+	labelCoOwner:SetFont(fontMenu)
+	labelCoOwner:SizeToContents()
+	labelCoOwner:InvalidateLayout(true)
 	
 	pnl_management.PaintOver = function()
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_management:GetWide(), pnl_management:GetTall())
 		surface.DrawLine(0, select(2, buttonUpdateRent:GetPos()) + buttonUpdateRent:GetTall() + 5, pnl_management:GetWide(), select(2, buttonUpdateRent:GetPos()) + buttonUpdateRent:GetTall() + 5)
 		surface.DrawLine(0, select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5, pnl_management:GetWide(), select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5)
+		surface.DrawLine(0, select(2, buttonChangeTitle:GetPos()) + buttonChangeTitle:GetTall() + 5, pnl_management:GetWide(), select(2, buttonChangeTitle:GetPos()) + buttonChangeTitle:GetTall() + 5)
 	end
 	
 	return pnl_management

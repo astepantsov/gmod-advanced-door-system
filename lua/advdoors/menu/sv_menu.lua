@@ -2,6 +2,7 @@ util.AddNetworkString("advdoors_purchased")
 util.AddNetworkString("advdoors_updaterent")
 util.AddNetworkString("advdoors_rent")
 util.AddNetworkString("advdoors_sold")
+util.AddNetworkString("advdoors_settitle")
 
 local function doorCost(ply, door)
 	return door:getDoorPrice() or GAMEMODE.Config.doorcost
@@ -64,6 +65,15 @@ net.Receive("advdoors_rent", function(len, ply)
 			net.Start("advdoors_rent")
 			net.Send(ply)
 		end)
+	end
+end)
+
+net.Receive("advdoors_settitle", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and data.door:isKeysOwnedBy(ply) and #data.title < 30 then
+		data.door:setKeysTitle(data.title)
+		net.Start("advdoors_settitle")
+		net.Send(ply)
 	end
 end)
 
