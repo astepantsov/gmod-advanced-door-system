@@ -2,6 +2,7 @@ local cog
 AdvDoors.DownloadMaterial("http://i.imgur.com/2CKMuhQ.png", function(m) cog = m end)
 
 AdvDoors.openMenu = function(door)
+	AdvDoors.CurrentTabs = {}
 	local frame = vgui.Create("mgFrame")
 	frame:SetSize(600, 500)
 	frame:Center()
@@ -18,10 +19,20 @@ AdvDoors.openMenu = function(door)
 	hlist:SetSize(frame:GetWide() - 10, 40)
 
 	for k, v in pairs(AdvDoors.MenuTabs) do
-		if (table.HasValue(v.Access, NO_ACCESS) and not LocalPlayer():canKeysLock(door) and not LocalPlayer():canKeysLock(door)) or (table.HasValue(v.Access, OWNER) and LocalPlayer() == door:getDoorOwner()) or (table.HasValue(v.Access, COOWNER) and door:getKeysCoOwners() and door:getKeysCoOwners()[LocalPlayer():UserID()]) or (table.HasValue(v.Access, ADMIN) and LocalPlayer():IsSuperAdmin()) then
-			
+		if (table.HasValue(v.Access, NO_ACCESS) and not LocalPlayer():canKeysLock(door) and not LocalPlayer():canKeysLock(door)) or (table.HasValue(v.Access, OWNER) and LocalPlayer() == door:getDoorOwner()) or (table.HasValue(v.Access, COOWNER) and door:getKeysCoOwners() and door:getKeysCoOwners()[LocalPlayer():UserID()]) or (table.HasValue(v.Access, ADMIN) and LocalPlayer():IsSuperAdmin()) then			
 			local b = hlist:AddTab(v.Title, cog, v.Function(frame, door) or nil)
+			AdvDoors.CurrentTabs[k] = b
 			if k == 1 then hlist:SetSelected(b) end
+		end
+	end
+	
+	AdvDoors.refreshTab = function(tab_id, setselected)
+		if AdvDoors.CurrentTabs[tab_id] then
+			AdvDoors.CurrentTabs[tab_id].Child:Remove()
+			AdvDoors.CurrentTabs[tab_id].Child = AdvDoors.MenuTabs[tab_id].Function(frame, door) or nil
+			if setselected then
+				hlist:SetSelected(AdvDoors.CurrentTabs[tab_id])
+			end
 		end
 	end
 end

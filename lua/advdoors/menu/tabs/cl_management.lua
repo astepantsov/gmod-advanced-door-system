@@ -2,7 +2,8 @@ local TAB = {}
 
 TAB.Title = "Management"
 TAB.Access = {
-	OWNER
+	OWNER,
+	COOWNER
 }
 
 TAB.Function = function(frame, door)
@@ -80,6 +81,7 @@ TAB.Function = function(frame, door)
 		net.SendToServer()
 		net.Receive("advdoors_updaterent", function(len)
 			mgui.Notify(net.ReadString())
+			AdvDoors.refreshTab(1, false)
 		end)
 	end
 	
@@ -131,9 +133,7 @@ TAB.Function = function(frame, door)
 			net.SendToServer()
 			net.Receive("advdoors_settitle", function()
 				if frame and IsValid(frame) then
-					labelTitle:SetText(door:getKeysTitle() and "Current door title is " .. door:getKeysTitle() or "This door has no title")
-					labelTitle:SizeToContents()
-					buttonChangeTitle:SetPos(labelTitle:GetWide() + 10, select(2, labelTitle:GetPos()) - 5)
+					AdvDoors.refreshTab(2, true)
 				end
 			end)
 		end, "Set the door title (less than 30 characters)", door:getKeysTitle() or "")
@@ -146,12 +146,112 @@ TAB.Function = function(frame, door)
 	labelCoOwner:SizeToContents()
 	labelCoOwner:InvalidateLayout(true)
 	
+	local playerList = vgui.Create("mgPlayerList", pnl_management)
+	playerList:SetPos(labelCoOwner:GetWide() + 10, select(2, labelCoOwner:GetPos()) - 5)
+	playerList:SetSize(100, labelCoOwner:GetTall() + 10)
+	if door:getKeysAllowedToOwn() then
+		for k,v in pairs(door:getKeysAllowedToOwn()) do
+			playerList:RemoveByData(AdvDoors.getByUserID(k))
+		end
+	end
+	if door:getKeysCoOwners() then
+		for k,v in pairs(door:getKeysCoOwners()) do
+			playerList:RemoveByData(AdvDoors.getByUserID(k))
+		end
+	end
+	playerList:RemoveByData(AdvDoors.getOwner(door))
+	
+	local buttonAddCoOwner = vgui.Create("mgButton", pnl_management)
+	buttonAddCoOwner:SetPos(labelCoOwner:GetWide() + playerList:GetWide() + 15, select(2, labelCoOwner:GetPos()) - 5)
+	buttonAddCoOwner:SetSize(100, labelCoOwner:GetTall() + 10)
+	buttonAddCoOwner:SetText("Add")
+	buttonAddCoOwner.DoClick = function()
+		if not playerList:GetPlayer() or not IsValid(playerList:GetPlayer()) or not playerList:GetPlayer():IsPlayer() then return end
+		net.Start("advdoors_coowneradd")
+		net.WriteTable({door = door, ply = playerList:GetPlayer()})
+		net.SendToServer()
+		net.Receive("advdoors_coowneradd", function()
+			if frame and IsValid(frame) then
+				AdvDoors.refreshTab(2, true)
+			end
+		end)
+	end
+	
+	local CoOwnerScroll = vgui.Create("mgScrollPanel", pnl_management)
+	CoOwnerScroll:SetSize(275, 106)
+	CoOwnerScroll:SetPos(5, select(2, buttonAddCoOwner:GetPos()) + buttonAddCoOwner:GetTall() + 5)
+	
+	local CoOwnerLayout = vgui.Create("DIconLayout", pnl_management)
+	CoOwnerLayout:SetSize(255, 0)
+	CoOwnerLayout:SetPos(0, 0)
+	CoOwnerLayout:SetSpaceX(5)
+	CoOwnerLayout:SetSpaceY(5)
+	
+	if door:getKeysAllowedToOwn() or door:getKeysCoOwners() then
+		if door:getKeysAllowedToOwn() then
+			for k,v in pairs(door:getKeysAllowedToOwn()) do
+				if AdvDoors.getByUserID(k) then
+					local coownerItem = CoOwnerLayout:Add("mgItem")
+					coownerItem:SetSize(125, 32)
+					coownerItem:SetPlayer(AdvDoors.getByUserID(k))
+					coownerItem:SetType("Player")
+					local buttonRemove = CoOwnerLayout:Add("mgButton")
+					buttonRemove:SetSize(125, 32)
+					buttonRemove:SetText("Remove")
+					buttonRemove.DoClick = function()
+						if not IsValid(AdvDoors.getByUserID(k)) or not AdvDoors.getByUserID(k):IsPlayer() then return end
+						net.Start("advdoors_coownerallowedremove")
+						net.WriteTable({door = door, ply = AdvDoors.getByUserID(k)})
+						net.SendToServer()
+						net.Receive("advdoors_coownerallowedremove", function()
+							if frame and IsValid(frame) then
+								AdvDoors.refreshTab(2, true)
+							end
+						end)
+					end
+				end
+			end
+		end
+		if door:getKeysCoOwners() then
+			for k,v in pairs(door:getKeysCoOwners()) do
+				if AdvDoors.getByUserID(k) then
+					local coownerItem = CoOwnerLayout:Add("mgItem")
+					coownerItem:SetSize(125, 32)
+					coownerItem:SetPlayer(AdvDoors.getByUserID(k))
+					coownerItem:SetType("Player")
+					local buttonRemove = CoOwnerLayout:Add("mgButton")
+					buttonRemove:SetSize(125, 32)
+					buttonRemove:SetText("Remove")
+					buttonRemove.DoClick = function()
+						if not IsValid(AdvDoors.getByUserID(k)) or not AdvDoors.getByUserID(k):IsPlayer() then return end
+						net.Start("advdoors_coownerremove")
+						net.WriteTable({door = door, ply = AdvDoors.getByUserID(k)})
+						net.SendToServer()
+						net.Receive("advdoors_coownerremove", function()
+							if frame and IsValid(frame) then
+								AdvDoors.refreshTab(2, true)
+							end
+						end)
+					end
+				end
+			end
+		end
+	else
+		local noCoowners = CoOwnerLayout:Add("mgStatusLabel")
+		noCoowners:SetType("danger")
+		noCoowners:SetText("This door has no coowners yet")
+		noCoowners:SizeToContents(true) 
+	end
+	
+	CoOwnerScroll:AddItem(CoOwnerLayout)
+	
 	pnl_management.PaintOver = function()
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_management:GetWide(), pnl_management:GetTall())
 		surface.DrawLine(0, select(2, buttonUpdateRent:GetPos()) + buttonUpdateRent:GetTall() + 5, pnl_management:GetWide(), select(2, buttonUpdateRent:GetPos()) + buttonUpdateRent:GetTall() + 5)
 		surface.DrawLine(0, select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5, pnl_management:GetWide(), select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5)
 		surface.DrawLine(0, select(2, buttonChangeTitle:GetPos()) + buttonChangeTitle:GetTall() + 5, pnl_management:GetWide(), select(2, buttonChangeTitle:GetPos()) + buttonChangeTitle:GetTall() + 5)
+		surface.DrawLine(0, select(2, CoOwnerScroll:GetPos()) + CoOwnerScroll:GetTall() + 5, pnl_management:GetWide(), select(2, CoOwnerScroll:GetPos()) + CoOwnerScroll:GetTall() + 5)
 	end
 	
 	return pnl_management

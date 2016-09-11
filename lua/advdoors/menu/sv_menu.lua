@@ -3,6 +3,9 @@ util.AddNetworkString("advdoors_updaterent")
 util.AddNetworkString("advdoors_rent")
 util.AddNetworkString("advdoors_sold")
 util.AddNetworkString("advdoors_settitle")
+util.AddNetworkString("advdoors_coowneradd")
+util.AddNetworkString("advdoors_coownerallowedremove")
+util.AddNetworkString("advdoors_coownerremove")
 
 local function doorCost(ply, door)
 	return door:getDoorPrice() or GAMEMODE.Config.doorcost
@@ -33,15 +36,17 @@ hook.Add("playerKeysSold", "AdvancedDoorSystem_DoorSold", soldDoor)
 
 net.Receive("advdoors_updaterent", function(len, ply)
 	local data = net.ReadTable()
-	if (AdvDoors.getOwner(data.door) == ply) then
+	if (AdvDoors.getOwner(data.door) == ply and ply:GetPos():Distance(data.door:GetPos()) < 300) then
 		if isbool(data.canRent) and isnumber(data.rentPrice) and data.rentPrice >= 1 and isnumber(data.rentLength) and data.rentLength >= 1 and data.rentLength <= 60 and isnumber(data.rentMaxPeriods) and data.rentMaxPeriods >= 1 and math.Round(data.rentMaxPeriods) == data.rentMaxPeriods and math.Round(data.rentLength) == data.rentLength and math.Round(data.rentPrice) == data.rentPrice then
 			data.door:SetNWBool("canRent", data.canRent)
 			data.door:SetNWFloat("rentPrice", math.floor(data.rentPrice))
 			data.door:SetNWFloat("rentLength", math.floor(data.rentLength))
 			data.door:SetNWFloat("rentMaxPeriods", math.floor(data.rentMaxPeriods))
-			net.Start("advdoors_updaterent")
-			net.WriteString("Rent information has been updated")
-			net.Send(ply)
+			timer.Simple(0.25, function()
+				net.Start("advdoors_updaterent")
+				net.WriteString("Rent information has been updated")
+				net.Send(ply)
+			end)
 		else
 			net.Start("advdoors_updaterent")
 			net.WriteString("Couldn't update the rent information, verify your input")
@@ -52,7 +57,7 @@ end)
 
 net.Receive("advdoors_rent", function(len, ply)
 	local data = net.ReadTable()
-	if (data.door:GetNWBool("canRent", false) and AdvDoors.getOwner(data.door) and AdvDoors.getOwner(data.door) != ply and data.door:GetNWFloat("rentPrice", false) and data.door:GetNWFloat("rentLength", false) and data.door:GetNWFloat("rentMaxPeriods", false) and data.periods >= 1 and data.periods <= data.door:GetNWFloat("rentMaxPeriods", false) and ply:getDarkRPVar("money") >= (data.door:GetNWFloat("rentPrice", false) * data.periods) and math.Round(data.periods) == data.periods) then
+	if (data.door:GetNWBool("canRent", false) and AdvDoors.getOwner(data.door) and AdvDoors.getOwner(data.door) != ply and data.door:GetNWFloat("rentPrice", false) and data.door:GetNWFloat("rentLength", false) and data.door:GetNWFloat("rentMaxPeriods", false) and data.periods >= 1 and data.periods <= data.door:GetNWFloat("rentMaxPeriods", false) and ply:getDarkRPVar("money") >= (data.door:GetNWFloat("rentPrice", false) * data.periods) and math.Round(data.periods) == data.periods and ply:GetPos():Distance(data.door:GetPos()) < 300) then
 		local periods = math.Round(data.periods)
 		ply:addMoney(-(data.door:GetNWFloat("rentPrice", false) * periods))
 		AdvDoors.getOwner(data.door):addMoney((data.door:GetNWFloat("rentPrice", false) * periods))
@@ -70,9 +75,36 @@ end)
 
 net.Receive("advdoors_settitle", function(len, ply)
 	local data = net.ReadTable()
-	if IsValid(data.door) and data.door:isDoor() and data.door:isKeysOwnedBy(ply) and #data.title < 30 then
+	if IsValid(data.door) and data.door:isDoor() and data.door:isKeysOwnedBy(ply) and #data.title < 30 and ply:GetPos():Distance(data.door:GetPos()) < 300 then
 		data.door:setKeysTitle(data.title)
 		net.Start("advdoors_settitle")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_coowneradd", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and data.door:isKeysOwnedBy(ply) and ply:GetPos():Distance(data.door:GetPos()) < 300 and IsValid(data.ply) and data.ply:IsPlayer() then
+		data.door:addKeysAllowedToOwn(data.ply)
+		net.Start("advdoors_coowneradd")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_coownerallowedremove", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and data.door:isMasterOwner(ply) and ply:GetPos():Distance(data.door:GetPos()) < 300 and IsValid(data.ply) and data.ply:IsPlayer() then
+		data.door:removeKeysAllowedToOwn(data.ply)
+		net.Start("advdoors_coownerallowedremove")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_coownerremove", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and data.door:isMasterOwner(ply) and ply:GetPos():Distance(data.door:GetPos()) < 300 and IsValid(data.ply) and data.ply:IsPlayer() then
+		data.door:removeKeysDoorOwner(data.ply)
+		net.Start("advdoors_coownerremove")
 		net.Send(ply)
 	end
 end)
