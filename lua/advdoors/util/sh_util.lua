@@ -68,3 +68,44 @@ AdvDoors.hasValidCoowner = function(coOwners)
 	end
 	return false
 end
+
+AdvDoors.getEntIndex = function(ent)
+	return ent:EntIndex() - game.MaxPlayers()
+end
+
+AdvDoors.hasJobRestriction = function(door)
+	if AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] then
+		for k,v in pairs(AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)]) do
+			if v then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+AdvDoors.getDoorList = function(door)
+	local temp = 0
+	if AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] then
+		for k,v in pairs(AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)]) do
+			if v then
+				temp = temp + 1
+			end
+		end
+		return temp
+	end
+	return false
+end
+
+AdvDoors.jobList = function(jobs)
+	local temp = 0
+	if jobs then
+		for k,v in pairs(jobs) do
+			if v then
+				temp = temp + 1
+			end
+		end
+		return temp
+	end
+	return false
+end

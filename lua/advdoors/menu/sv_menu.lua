@@ -8,6 +8,14 @@ util.AddNetworkString("advdoors_coownerallowedremove")
 util.AddNetworkString("advdoors_coownerremove")
 util.AddNetworkString("advdoors_transferownership")
 util.AddNetworkString("advdoors_toggleownership")
+util.AddNetworkString("advdoors_addblacklist")
+util.AddNetworkString("advdoors_removeblacklist")
+util.AddNetworkString("advdoors_addjob")
+util.AddNetworkString("advdoors_setgroup")
+util.AddNetworkString("advdoors_jobremove")
+util.AddNetworkString("advdoors_anyplayer")
+util.AddNetworkString("advdoors_addjobplayer")
+util.AddNetworkString("advdoors_jobremoveplayer")
 
 local function doorCost(ply, door)
 	return door:getDoorPrice() or GAMEMODE.Config.doorcost
@@ -150,6 +158,133 @@ net.Receive("advdoors_toggleownership", function(len, ply)
 			data.door:SetNWFloat("rentMaxPeriods", 1)
 		end
 		data.door:setKeysNonOwnable(!data.state)
+	end
+end)
+
+net.Receive("advdoors_addblacklist", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and data.option == 1 or data.option == 2 then
+		if data.option == 1 then
+			AdvDoors.Configuration.getMapConfig().blacklistedDoors[AdvDoors.getEntIndex(data.door)] = true
+		elseif data.option == 2 then
+			AdvDoors.Configuration.getGeneralConfig().doorPropBlacklist[data.door:GetClass()] = true
+		end
+		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
+		AdvDoors.Configuration.Broadcast()
+		net.Start("advdoors_addblacklist")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_removeblacklist", function(len, ply)
+	local ent = net.ReadEntity()
+	if IsValid(ent) and ent:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
+		AdvDoors.Configuration.getMapConfig().blacklistedDoors[AdvDoors.getEntIndex(ent)] = false
+		AdvDoors.Configuration.getGeneralConfig().doorPropBlacklist[ent:GetClass()] = false
+		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
+		AdvDoors.Configuration.Broadcast()
+		net.Start("advdoors_removeblacklist")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_addjob", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and team.GetName(data.job) != "" then
+		data.door:removeAllKeysAllowedToOwn()
+		data.door:removeAllKeysExtraOwners()
+		data.door:setDoorGroup(nil)
+		if AdvDoors.getOwner(data.door) then
+			data.door:keysUnOwn(AdvDoors.getOwner(data.door))
+		end
+		data.door:SetNWBool("canRent", false)
+		data.door:SetNWEntity("tenant", false)
+		data.door:SetNWFloat("rentPrice", 1)
+		data.door:SetNWFloat("rentLength", 1)
+		data.door:SetNWFloat("rentMaxPeriods", 1)
+		data.door:addKeysDoorTeam(data.job)
+		DarkRP.storeTeamDoorOwnability(data.door)
+		DarkRP.storeDoorGroup(data.door, nil)
+		net.Start("advdoors_addjob")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_setgroup", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
+		data.door:removeAllKeysAllowedToOwn()
+		data.door:removeAllKeysDoorTeams()
+		data.door:removeAllKeysExtraOwners()
+		if AdvDoors.getOwner(data.door) then
+			data.door:keysUnOwn(AdvDoors.getOwner(data.door))
+		end
+		data.door:SetNWBool("canRent", false)
+		data.door:SetNWEntity("tenant", false)
+		data.door:SetNWFloat("rentPrice", 1)
+		data.door:SetNWFloat("rentLength", 1)
+		data.door:SetNWFloat("rentMaxPeriods", 1)
+		data.door:setDoorGroup(data.group)
+		DarkRP.storeDoorGroup(data.door, data.group)
+		DarkRP.storeTeamDoorOwnability(data.door)
+		net.Start("advdoors_setgroup")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_jobremove", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
+		data.door:removeKeysDoorTeam(data.job)
+		DarkRP.storeTeamDoorOwnability(data.door)
+		net.Start("advdoors_jobremove")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_anyplayer", function(len, ply)
+	local data = net.ReadEntity()
+	if IsValid(data) and data:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
+		data:removeAllKeysAllowedToOwn()
+		data:removeAllKeysDoorTeams()
+		data:removeAllKeysExtraOwners()
+		if AdvDoors.getOwner(data) then
+			data:keysUnOwn(AdvDoors.getOwner(data))
+		end
+		data:SetNWBool("canRent", false)
+		data:SetNWEntity("tenant", false)
+		data:SetNWFloat("rentPrice", 1)
+		data:SetNWFloat("rentLength", 1)
+		data:SetNWFloat("rentMaxPeriods", 1)
+		data:setDoorGroup(nil)
+		DarkRP.storeDoorGroup(data, nil)
+		DarkRP.storeTeamDoorOwnability(data)
+		net.Start("advdoors_anyplayer")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_addjobplayer", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and team.GetName(data.job) != "" then
+		if not AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(data.door)] then AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(data.door)] = {} end
+		AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(data.door)][data.job] = true
+		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
+		AdvDoors.Configuration.Broadcast()
+		net.Start("advdoors_addjobplayer")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_jobremoveplayer", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
+		if not AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(data.door)] then AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(data.door)] = {} end
+		AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(data.door)][data.job] = false
+		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
+		AdvDoors.Configuration.Broadcast()
+		net.Start("advdoors_jobremoveplayer")
+		net.Send(ply)
 	end
 end)
 

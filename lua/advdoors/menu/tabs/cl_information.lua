@@ -92,7 +92,7 @@ TAB.Function = function(frame, door)
 		local noCoowners = coownerLayout:Add("mgStatusLabel")
 		noCoowners:SetType("primary")
 		noCoowners:SetText("This door has no coowners")
-		noCoowners:SizeToContents(true) 
+		noCoowners:SizeToContents() 
 	end
 
 	coownerLayout:InvalidateLayout(true)
@@ -106,7 +106,7 @@ TAB.Function = function(frame, door)
 	labelGroupOwner:SetType("primary")
 	labelGroupOwner:SetText(door:getKeysDoorGroup() or "No group")
 	labelGroupOwner:SetPos(10 + labelGroups:GetWide(), select(2, coownerLayout:GetPos()) + coownerLayout:GetTall() + 8);
-	labelGroupOwner:SizeToContents(true)
+	labelGroupOwner:SizeToContents()
 	
 	local x, y = labelGroupOwner:GetPos();
 	local labelTeams = vgui.Create("DLabel", pnl_information)
@@ -124,9 +124,11 @@ TAB.Function = function(frame, door)
 	local teamCount = 0
 	local doorTeams = door:getKeysDoorTeams()
 	
+	surface.SetFont(fontMenu)
+	
 	if doorTeams then
 		for k,v in pairs(doorTeams) do
-			if (teamWidth + 100 > teamsLayout:GetWide() - labelTeams:GetWide()) then
+			if (((teamsLayout:GetWide() - teamWidth - surface.GetTextSize(team.GetName(k)) - 10) <= 100) or (teamWidth + surface.GetTextSize(team.GetName(k)) > teamsLayout:GetWide() - labelTeams:GetWide())) and #doorTeams > teamCount then
 				local teamsMore = teamsLayout:Add("mgMenu")
 				teamsMore:SetText("and " .. (#doorTeams - teamCount) .. " more")
 				teamsMore:SetSize(100, 18)
@@ -141,36 +143,34 @@ TAB.Function = function(frame, door)
 			local teamItem = teamsLayout:Add("mgStatusLabel")
 			teamItem:SetType(k == LocalPlayer():Team() and "success" or "primary")
 			teamItem:SetText(team.GetName(k))
-			teamItem:SizeToContents(true)
+			teamItem:SizeToContents()
 			teamItem:InvalidateLayout(true)
 			
-			teamWidth = teamWidth + teamItem:GetWide()
+			teamWidth = teamWidth + teamItem:GetWide() + 5
 			teamCount = teamCount + 1
 		end
 	else
 		local noTeams = teamsLayout:Add("mgStatusLabel")
 		noTeams:SetType("primary")
 		noTeams:SetText("This door has no teams assigned")
-		noTeams:SizeToContents(true)
+		noTeams:SizeToContents()
 	end
 	
-	x, y = labelTeams:GetPos()
-	
 	local labelPurchase = vgui.Create("DLabel", pnl_information)
-	labelPurchase:SetPos(5, y + labelTeams:GetTall() + 15)
+	labelPurchase:SetPos(5, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 15)
 	labelPurchase:SetText("Buy a door for")
 	labelPurchase:SetFont(fontMenu)
 	labelPurchase:SizeToContents()
 	labelPurchase:InvalidateLayout(true)
 
 	local labelPrice = vgui.Create("mgStatusLabel", pnl_information)
-	labelPrice:SetPos(10 + labelPurchase:GetWide(), y + labelTeams:GetTall() + 15)
+	labelPrice:SetPos(10 + labelPurchase:GetWide(), select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 15)
 	labelPrice:SetType("primary")
 	labelPrice:SetText(DarkRP.formatMoney(door:getDoorPrice() or GAMEMODE.Config.doorcost))
-	labelPrice:SizeToContents(true)
+	labelPrice:SizeToContents()
 	
 	local buttonPurchase = vgui.Create("mgButton", pnl_information)
-	buttonPurchase:SetPos(labelPurchase:GetWide() + labelPrice:GetWide(), y + labelTeams:GetTall() + 10)
+	buttonPurchase:SetPos(labelPurchase:GetWide() + labelPrice:GetWide() + 15, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 10)
 	buttonPurchase:SetSize(100, labelPrice:GetTall() + 10)
 	buttonPurchase:SetText("Purchase")
 	buttonPurchase.DoClick = function()
@@ -189,10 +189,10 @@ TAB.Function = function(frame, door)
 	if isOwned and not door:isKeysAllowedToOwn(LocalPlayer()) then
 		buttonPurchase:SetDisabled(true)
 		local labelOwned = vgui.Create("mgStatusLabel", pnl_information)
-		labelOwned:SetPos(labelPrice:GetWide() + labelPurchase:GetWide() + buttonPurchase:GetWide() + 5, y + labelTeams:GetTall() + 15)
+		labelOwned:SetPos(labelPrice:GetWide() + labelPurchase:GetWide() + buttonPurchase:GetWide() + 20, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 15)
 		labelOwned:SetType(isOwned == LocalPlayer() and "success" or "danger")
 		labelOwned:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot purchase it" or "This door is owned already and cannot be purchased")
-		labelOwned:SizeToContents(true)
+		labelOwned:SizeToContents()
 	end
 		
 	local labelRent = vgui.Create("DLabel", pnl_information)
@@ -206,7 +206,7 @@ TAB.Function = function(frame, door)
 	labelRentInfo:SetPos(10 + labelRent:GetWide(), select(2, labelRent:GetPos()))
 	labelRentInfo:SetType(isOwned == LocalPlayer() and "success" or (door:GetNWBool("canRent", false) and not door:GetNWBool("tenant", false)) and "primary" or door:GetNWBool("tenant", false) == LocalPlayer() and "warning" or isOwned and "danger" or "warning")
 	labelRentInfo:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot rent it" or (door:GetNWBool("canRent", false) and not door:GetNWBool("tenant", false)) and DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " / " .. door:GetNWFloat("rentLength") .. " minute(s)" or door:GetNWBool("tenant", false) == LocalPlayer() and "Your rent expires at " .. os.date("%H:%M:%S - %d/%m/%Y", os.time() + (door:GetNWFloat("tenantExpire") - CurTime())) or isOwned and "Owner of this door doesn't want to rent it out" or "You cannot rent this door as it is not owned by anyone yet")
-	labelRentInfo:SizeToContents(true)
+	labelRentInfo:SizeToContents()
 	
 	local labelRentPeriods = vgui.Create("DLabel", pnl_information)
 	labelRentPeriods:SetPos(5, select(2, labelRent:GetPos()) + labelRent:GetTall() + 8)
@@ -225,7 +225,7 @@ TAB.Function = function(frame, door)
 	else
 		sliderRentPeriods:SetType("warning")
 		sliderRentPeriods:SetText("You can't change the amount of periods for this door")
-		sliderRentPeriods:SizeToContents(true)
+		sliderRentPeriods:SizeToContents()
 	end
 	sliderRentPeriods:InvalidateLayout(true)
 	
@@ -240,7 +240,7 @@ TAB.Function = function(frame, door)
 	labelResultMoney:SetPos(10 + labelResult:GetWide(), select(2, sliderRentPeriods:GetPos()) + sliderRentPeriods:GetTall() + 8)
 	labelResultMoney:SetType("warning")
 	labelResultMoney:SetText((door:GetNWFloat("rentMaxPeriods", 1) == 1 and door:GetNWBool("canRent", false)) and DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " for " .. door:GetNWFloat("rentLength") .. " minute(s)" or door:GetNWBool("canRent", false) and DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())) .. " for " .. (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue())) .. " minute(s)" or "unknown")
-	labelResultMoney:SizeToContents(true)
+	labelResultMoney:SizeToContents()
 
 	
 	sliderRentPeriods.Think = function()

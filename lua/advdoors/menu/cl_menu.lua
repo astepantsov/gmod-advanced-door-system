@@ -36,3 +36,15 @@ AdvDoors.openMenu = function(door)
 		end
 	end
 end
+
+local function KeyPress()
+    gui.EnableScreenClicker(input.IsKeyDown(KEY_LALT))
+end
+ 
+hook.Add("Think","AdvancedDoorSystem_OpenMenuF2", function()
+	local ent = LocalPlayer():GetEyeTrace().Entity
+	if input.IsKeyDown(KEY_F2) and not AdvDoors.KeyLocked and ent:isDoor() and LocalPlayer():GetPos():Distance(ent:GetPos()) < 200 and ((ent:isKeysOwnable() and not ent:getKeysNonOwnable()) or LocalPlayer():IsSuperAdmin()) then
+		AdvDoors.KeyLocked = true
+		AdvDoors.openMenu(ent);
+	end
+end)

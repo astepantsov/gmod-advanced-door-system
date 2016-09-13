@@ -7,7 +7,8 @@ AdvDoors.Configuration.Default = {
 	},
 	[game.GetMap()] = {
 		DoorPrices = {},
-		blacklistedDoors = {}
+		blacklistedDoors = {},
+		DoorJobs = {}
 	}
 }
 
@@ -23,13 +24,17 @@ AdvDoors.Configuration.Load = function()
 	local config = util.JSONToTable(file.Read("advdoors/configuration/config.txt", "DATA"))
 	if not config[game.GetMap()] then
 		config[game.GetMap()] = {
-			DoorPrices = {}
+			DoorPrices = {},
+			blacklistedDoors = {},
+			DoorJobs = {}
 		}
 		AdvDoors.Configuration.Save(config)
 	end
 
 	AdvDoors.Configuration.Loaded = config
 
+	AdvDoors.Configuration.Broadcast()
+	
 	MsgC(Color(0, 255, 0), "[Advanced Door System] Configuration has been loaded.\n")
 end
 

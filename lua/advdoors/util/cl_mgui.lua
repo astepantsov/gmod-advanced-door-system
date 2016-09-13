@@ -1233,8 +1233,8 @@ function PANEL:Init()
 	self:SetSize(60, 18)
 end
 
-function PANEL:SizeToContents(b)
-	self._sizetocontents = b
+function PANEL:SizeToContents()
+	self:SetWide(mgui.GetTextSize(font, self._text) + 10)
 end
 
 function PANEL:SetText(str)
