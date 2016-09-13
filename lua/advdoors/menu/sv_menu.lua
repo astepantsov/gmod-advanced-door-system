@@ -6,6 +6,8 @@ util.AddNetworkString("advdoors_settitle")
 util.AddNetworkString("advdoors_coowneradd")
 util.AddNetworkString("advdoors_coownerallowedremove")
 util.AddNetworkString("advdoors_coownerremove")
+util.AddNetworkString("advdoors_transferownership")
+util.AddNetworkString("advdoors_toggleownership")
 
 local function doorCost(ply, door)
 	return door:getDoorPrice() or GAMEMODE.Config.doorcost
@@ -109,15 +111,57 @@ net.Receive("advdoors_coownerremove", function(len, ply)
 	end
 end)
 
+net.Receive("advdoors_transferownership", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and data.door:isMasterOwner(ply) and ply:GetPos():Distance(data.door:GetPos()) < 300 and IsValid(data.ply) and data.ply:IsPlayer() then
+		data.door:keysUnOwn(ply)
+		if data.door:GetNWEntity("tenant", false) == data.ply then
+			data.door:SetNWEntity("tenant", false)
+		end
+		if data.door:isKeysOwnedBy(data.ply) then
+			data.door:removeKeysDoorOwner(data.ply)
+		end
+		if data.door:isKeysAllowedToOwn(data.ply) then
+			data.door:removeKeysAllowedToOwn(data.ply)
+		end
+		data.door:keysOwn(data.ply)
+		
+		timer.Simple(0.25, function()
+			net.Start("advdoors_transferownership")
+			net.Send(ply)
+		end)
+	end	
+end)
+
+net.Receive("advdoors_toggleownership", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and isbool(data.state) then
+		if not data.state then
+			data.door:removeAllKeysAllowedToOwn()
+			data.door:removeAllKeysDoorTeams()
+			data.door:removeAllKeysExtraOwners()
+			if AdvDoors.getOwner(data.door) then
+				data.door:keysUnOwn(AdvDoors.getOwner(data.door))
+			end
+			data.door:SetNWBool("canRent", false)
+			data.door:SetNWEntity("tenant", false)
+			data.door:SetNWFloat("rentPrice", 1)
+			data.door:SetNWFloat("rentLength", 1)
+			data.door:SetNWFloat("rentMaxPeriods", 1)
+		end
+		data.door:setKeysNonOwnable(!data.state)
+	end
+end)
+
 hook.Add("PlayerDisconnected", "AdvancedDoorSystem_Disconnect", function(ply)
 	for _, door in pairs(ents.GetAll()) do
 		if door:isDoor() and door:GetNWEntity("tenant", false) == ply then
 			door:SetNWEntity("tenant", false)
 		elseif door:isDoor() and door:isMasterOwner(ply) then
 			door:SetNWBool("canRent", false)
-			door:SetNWFloat("rentPrice", false)
-			door:SetNWFloat("rentLength", false)
-			door:SetNWFloat("rentMaxPeriods", false)
+			door:SetNWFloat("rentPrice", 1)
+			door:SetNWFloat("rentLength", 1)
+			door:SetNWFloat("rentMaxPeriods", 1)
 		end
 	end
 end)

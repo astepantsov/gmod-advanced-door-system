@@ -21,19 +21,16 @@ TAB.Function = function(frame, door)
 	local BoolOwnership = vgui.Create("mgBoolean", pnl_admin)
 	BoolOwnership:SetPos(10 + Label_Purchase:GetWide(), 5)
 	BoolOwnership:SetValue(!door:getKeysNonOwnable())
-	BoolOwnership.OnValueChanged = function(value)
-		RunConsoleCommand("darkrp", "toggleownable")
-		BoolOwnership:SetDisabled(true)
-		timer.Simple(1.5, function()
-			if frame and IsValid(frame) and BoolOwnership and IsValid(BoolOwnership) then
-				BoolOwnership:SetDisabled(false)
-			end
-		end)
+	BoolOwnership.OnValueChanged = function(bool)
+		net.Start("advdoors_toggleownership")
+		net.WriteTable({door = door, state = bool:GetValue()})
+		net.SendToServer()
 	end
 	
 	pnl_admin.PaintOver = function()
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_admin:GetWide(), pnl_admin:GetTall())
+		surface.DrawLine(1, BoolOwnership:GetTall() + 10, pnl_admin:GetWide() - 2, BoolOwnership:GetTall() + 10)
 	end
 	
 	return pnl_admin

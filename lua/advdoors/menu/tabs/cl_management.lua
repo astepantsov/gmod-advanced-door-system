@@ -23,9 +23,6 @@ TAB.Function = function(frame, door)
 	local boolRent = vgui.Create("mgBoolean", pnl_management)
 	boolRent:SetPos(10 + labelCanRent:GetWide(), 3)
 	boolRent:SetValue(door:GetNWBool("canRent", false))
-	boolRent.OnValueChanged = function(value)
-		
-	end
 	
 	local labelAmountRent = vgui.Create("DLabel", pnl_management)
 	labelAmountRent:SetPos(5, 20 + select(2, labelCanRent:GetPos()))
@@ -167,14 +164,17 @@ TAB.Function = function(frame, door)
 	buttonAddCoOwner:SetText("Add")
 	buttonAddCoOwner.DoClick = function()
 		if not playerList:GetPlayer() or not IsValid(playerList:GetPlayer()) or not playerList:GetPlayer():IsPlayer() then return end
-		net.Start("advdoors_coowneradd")
-		net.WriteTable({door = door, ply = playerList:GetPlayer()})
-		net.SendToServer()
-		net.Receive("advdoors_coowneradd", function()
-			if frame and IsValid(frame) then
-				AdvDoors.refreshTab(2, true)
-			end
-		end)
+		mgui.ShowDialog("confirm", "Are you sure that you want to add a coowner?", function()
+			net.Start("advdoors_coowneradd")
+			net.WriteTable({door = door, ply = playerList:GetPlayer()})
+			net.SendToServer()
+			net.Receive("advdoors_coowneradd", function()
+				if frame and IsValid(frame) then
+					AdvDoors.refreshTab(1, false)
+					AdvDoors.refreshTab(2, true)
+				end
+			end)
+		end, "Yes", "No")
 	end
 	
 	local CoOwnerScroll = vgui.Create("mgScrollPanel", pnl_management)
@@ -199,15 +199,18 @@ TAB.Function = function(frame, door)
 					buttonRemove:SetSize(125, 32)
 					buttonRemove:SetText("Remove")
 					buttonRemove.DoClick = function()
-						if not IsValid(AdvDoors.getByUserID(k)) or not AdvDoors.getByUserID(k):IsPlayer() then return end
-						net.Start("advdoors_coownerallowedremove")
-						net.WriteTable({door = door, ply = AdvDoors.getByUserID(k)})
-						net.SendToServer()
-						net.Receive("advdoors_coownerallowedremove", function()
-							if frame and IsValid(frame) then
-								AdvDoors.refreshTab(2, true)
-							end
-						end)
+						if not IsValid(AdvDoors.getByUserID(k)) or not AdvDoors.getByUserID(k):IsPlayer() or not door:isMasterOwner(LocalPlayer()) then return end
+						mgui.ShowDialog("confirm", "Are you sure that you want to remove this coowner?", function()
+							net.Start("advdoors_coownerallowedremove")
+							net.WriteTable({door = door, ply = AdvDoors.getByUserID(k)})
+							net.SendToServer()
+							net.Receive("advdoors_coownerallowedremove", function()
+								if frame and IsValid(frame) then
+									AdvDoors.refreshTab(1, false)
+									AdvDoors.refreshTab(2, true)
+								end
+							end)
+						end, "Yes", "No")
 					end
 				end
 			end
@@ -223,15 +226,18 @@ TAB.Function = function(frame, door)
 					buttonRemove:SetSize(125, 32)
 					buttonRemove:SetText("Remove")
 					buttonRemove.DoClick = function()
-						if not IsValid(AdvDoors.getByUserID(k)) or not AdvDoors.getByUserID(k):IsPlayer() then return end
-						net.Start("advdoors_coownerremove")
-						net.WriteTable({door = door, ply = AdvDoors.getByUserID(k)})
-						net.SendToServer()
-						net.Receive("advdoors_coownerremove", function()
-							if frame and IsValid(frame) then
-								AdvDoors.refreshTab(2, true)
-							end
-						end)
+						if not IsValid(AdvDoors.getByUserID(k)) or not AdvDoors.getByUserID(k):IsPlayer() or not door:isMasterOwner(LocalPlayer()) then return end
+						mgui.ShowDialog("confirm", "Are you sure that you want to remove this coowner?", function()
+							net.Start("advdoors_coownerremove")
+							net.WriteTable({door = door, ply = AdvDoors.getByUserID(k)})
+							net.SendToServer()
+							net.Receive("advdoors_coownerremove", function()
+								if frame and IsValid(frame) then
+									AdvDoors.refreshTab(1, false)
+									AdvDoors.refreshTab(2, true)
+								end
+							end)
+						end, "Yes", "No")
 					end
 				end
 			end
@@ -245,6 +251,57 @@ TAB.Function = function(frame, door)
 	
 	CoOwnerScroll:AddItem(CoOwnerLayout)
 	
+	local labelTransferOwnership = vgui.Create("DLabel", pnl_management)
+	labelTransferOwnership:SetPos(5, select(2, CoOwnerScroll:GetPos()) + CoOwnerScroll:GetTall() + 15)
+	labelTransferOwnership:SetText("Transfer ownership: ")
+	labelTransferOwnership:SetFont(fontMenu)
+	labelTransferOwnership:SizeToContents()
+	labelTransferOwnership:InvalidateLayout(true)
+	
+	local playerListTransfer = vgui.Create("mgPlayerList", pnl_management)
+	playerListTransfer:SetPos(labelTransferOwnership:GetWide() + 10, select(2, labelTransferOwnership:GetPos()) - 5)
+	playerListTransfer:SetSize(100, labelTransferOwnership:GetTall() + 10)
+	playerListTransfer:RemoveByData(LocalPlayer())
+	
+	local buttonTransferOwnership = vgui.Create("mgButton", pnl_management)
+	buttonTransferOwnership:SetPos(labelTransferOwnership:GetWide() + playerListTransfer:GetWide() + 15, select(2, labelTransferOwnership:GetPos()) - 5)
+	buttonTransferOwnership:SetSize(100, labelTransferOwnership:GetTall() + 10)
+	buttonTransferOwnership:SetText("Transfer")
+	buttonTransferOwnership.DoClick = function()
+		if not playerListTransfer:GetPlayer() or not IsValid(playerListTransfer:GetPlayer()) or not playerListTransfer:GetPlayer():IsPlayer() or not door:isMasterOwner(LocalPlayer()) then return end
+		mgui.ShowDialog("confirm", "Are you sure that you want to transfer owner rights?", function()
+			net.Start("advdoors_transferownership")
+			net.WriteTable({door = door, ply = playerListTransfer:GetPlayer()})
+			net.SendToServer()
+			net.Receive("advdoors_transferownership", function()
+				if frame and IsValid(frame) then
+					frame:Remove()
+					AdvDoors.openMenu(door)
+					mgui.Notify("You have successfully transfered ownership.")
+				end
+			end)
+		end, "Yes", "No")
+	end
+	
+	if not door:isMasterOwner(LocalPlayer()) then
+		boolRent:SetDisabled(true)
+		textAmountRent:SetDisabled(true)
+		textPeriodsRent:SetDisabled(true)
+		buttonUpdateRent:SetDisabled(true)
+		playerListTransfer:SetDisabled(true)
+		buttonTransferOwnership:SetDisabled(true)
+		local labelRentNotOwner = vgui.Create("mgStatusLabel", pnl_management)
+		labelRentNotOwner:SetPos(boolRent:GetPos() + boolRent:GetWide() + 5, select(2, boolRent:GetPos()) + 1)
+		labelRentNotOwner:SetType("danger")
+		labelRentNotOwner:SetText("You are not a master owner")
+		labelRentNotOwner:SizeToContents(true)
+		local labelTransferNotOwner = vgui.Create("mgStatusLabel", pnl_management)
+		labelTransferNotOwner:SetPos(buttonTransferOwnership:GetPos() + buttonTransferOwnership:GetWide() + 5, select(2, buttonTransferOwnership:GetPos()) + 5)
+		labelTransferNotOwner:SetType("danger")
+		labelTransferNotOwner:SetText("You are not a master owner")
+		labelTransferNotOwner:SizeToContents(true)
+	end
+	
 	pnl_management.PaintOver = function()
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_management:GetWide(), pnl_management:GetTall())
@@ -252,6 +309,11 @@ TAB.Function = function(frame, door)
 		surface.DrawLine(0, select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5, pnl_management:GetWide(), select(2, buttonSell:GetPos()) + buttonSell:GetTall() + 5)
 		surface.DrawLine(0, select(2, buttonChangeTitle:GetPos()) + buttonChangeTitle:GetTall() + 5, pnl_management:GetWide(), select(2, buttonChangeTitle:GetPos()) + buttonChangeTitle:GetTall() + 5)
 		surface.DrawLine(0, select(2, CoOwnerScroll:GetPos()) + CoOwnerScroll:GetTall() + 5, pnl_management:GetWide(), select(2, CoOwnerScroll:GetPos()) + CoOwnerScroll:GetTall() + 5)
+		surface.SetDrawColor(37, 37, 37, 150)
+		if not door:isMasterOwner(LocalPlayer()) then
+			surface.DrawRect(1, 1, pnl_management:GetWide() - 2, 19 + labelCanRent:GetTall() + labelAmountRent:GetTall() + sliderLengthRent:GetTall() + labelPeriodsRent:GetTall())
+			surface.DrawRect(1, select(2, CoOwnerScroll:GetPos()) + CoOwnerScroll:GetTall() + 6, pnl_management:GetWide() - 2, pnl_management:GetTall() - 1 - (select(2, CoOwnerScroll:GetPos()) + CoOwnerScroll:GetTall() + 6))
+		end
 	end
 	
 	return pnl_management
