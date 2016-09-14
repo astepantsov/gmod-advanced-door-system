@@ -39,6 +39,7 @@ local function soldDoor(ply, door)
 		door:SetNWFloat("rentPrice", 1)
 		door:SetNWFloat("rentLength", 1)
 		door:SetNWFloat("rentMaxPeriods", 1)
+		AdvDoors.RemoveAllModifications(door)
 		net.Start("advdoors_sold")
 		net.Send(ply)
 	end
@@ -164,6 +165,7 @@ net.Receive("advdoors_toggleownership", function(len, ply)
 			data.door:removeAllKeysAllowedToOwn()
 			data.door:removeAllKeysDoorTeams()
 			data.door:removeAllKeysExtraOwners()
+			AdvDoors.RemoveAllModifications(data.door)
 			if AdvDoors.getOwner(data.door) then
 				data.door:keysUnOwn(AdvDoors.getOwner(data.door))
 			end
@@ -207,6 +209,7 @@ net.Receive("advdoors_addjob", function(len, ply)
 	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and team.GetName(data.job) != "" then
 		data.door:removeAllKeysAllowedToOwn()
 		data.door:removeAllKeysExtraOwners()
+		AdvDoors.RemoveAllModifications(data.door)
 		resetJobRestriction(data.door)
 		data.door:setDoorGroup(nil)
 		if AdvDoors.getOwner(data.door) then
@@ -226,6 +229,7 @@ net.Receive("advdoors_setgroup", function(len, ply)
 	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
 		data.door:removeAllKeysAllowedToOwn()
 		data.door:removeAllKeysDoorTeams()
+		AdvDoors.RemoveAllModifications(data.door)
 		data.door:removeAllKeysExtraOwners()
 		resetJobRestriction(data.door)
 		if AdvDoors.getOwner(data.door) then
@@ -254,6 +258,7 @@ net.Receive("advdoors_anyplayer", function(len, ply)
 	if IsValid(data) and data:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
 		data:removeAllKeysAllowedToOwn()
 		data:removeAllKeysDoorTeams()
+		AdvDoors.RemoveAllModifications(data.door)
 		data:removeAllKeysExtraOwners()
 		resetJobRestriction(data)
 		if AdvDoors.getOwner(data) then
@@ -310,6 +315,7 @@ net.Receive("advdoors_otheractions", function(len, ply)
 			if AdvDoors.getOwner(data.door) then
 				data.door:keysUnOwn(AdvDoors.getOwner(data.door))
 				resetRent(data.door)
+				AdvDoors.RemoveAllModifications(data.door)
 			end
 		end
 		if data.actionID == 2 or data.actionID == 4 then
@@ -333,6 +339,7 @@ hook.Add("PlayerDisconnected", "AdvancedDoorSystem_Disconnect", function(ply)
 			door:SetNWFloat("rentPrice", 1)
 			door:SetNWFloat("rentLength", 1)
 			door:SetNWFloat("rentMaxPeriods", 1)
+			AdvDoors.RemoveAllModifications(door)
 		end
 	end
 end)
@@ -343,7 +350,7 @@ hook.Add("canKeysLock", "AdvancedDoorSystem_CanLock", function(ply, door)
 	end
 end)
 
-hook.Add("canKeysUnlock", "AdvancedDoorSystem_CanLock", function(ply, door)
+hook.Add("canKeysUnlock", "AdvancedDoorSystem_CanUnlock", function(ply, door)
 	if door:GetNWEntity("tenant", false) == ply then
 		return true
 	end

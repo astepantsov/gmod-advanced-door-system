@@ -2,11 +2,9 @@ ADVDOORS_MODIFICATION_DOORBELL = 1
 ADVDOORS_MODIFICATION_REINFORCE = 2
 ADVDOORS_MODIFICATION_ALARM = 3
 AdvDoors.Modifications = AdvDoors.Modifications or {}
-AdvDoors.AddModification = function(modification)
-	if not table.HasValue(AdvDoors.Modifications, modification) then
-		return table.insert(AdvDoors.Modifications, modification)
-	end
-	return false
+AdvDoors.ModificationsEnabled = true
+AdvDoors.AddModification = function(id, modification)
+	AdvDoors.Modifications[id] = modification
 end
 AdvDoors.hasModification = function(door, id)
 	if door:GetNWBool("advdoors_modification_" .. id, false) then
@@ -20,9 +18,15 @@ if CLIENT then
 	AdvDoors.DownloadMaterial("http://i.imgur.com/4ZlW2gE.png", function(self) doorbell = self end)
 	AdvDoors.DownloadMaterial("http://i.imgur.com/iGgYdyV.png", function(self) reinforce = self end)
 	AdvDoors.DownloadMaterial("http://i.imgur.com/8SThKBP.png", function(self) alarm = self end)
+	AdvDoors.useBell = function(door)
+		net.Start("advdoors_doorbell")
+		net.WriteEntity(door)
+		net.SendToServer()
+	end
 end
 
 AdvDoors.AddModification(
+	ADVDOORS_MODIFICATION_DOORBELL,
 	{
 		Name = "Door bell",
 		Description = "Allows other players to use a door bell on your door (will only work if door display is enabled for this door)",
@@ -33,6 +37,7 @@ AdvDoors.AddModification(
 )
 
 AdvDoors.AddModification(
+	ADVDOORS_MODIFICATION_REINFORCE,
 	{
 		Name = "Reinforce a door",
 		Description = "Lockpicking will take more time",
@@ -43,6 +48,7 @@ AdvDoors.AddModification(
 )
 
 AdvDoors.AddModification(
+	ADVDOORS_MODIFICATION_ALARM,
 	{
 		Name = "Add alarm",
 		Description = "Adds an alarm to your door which will activate when somebody has lockpicked it",
@@ -58,10 +64,15 @@ AdvDoors.SetModificationPrice = function(id, price)
 	end
 end
 
+AdvDoors.SetModificationEnabled = function(id, bool)
+	if AdvDoors.Modifications[id] then
+		AdvDoors.Modifications[id].isEnabled = bool
+	end
+end
+
 if SERVER then
 	util.AddNetworkString("advdoors_doorbell")
 	util.AddNetworkString("advdoors_purchasemod")
-	util.AddNetworkString("advdoors_deletemod")
 	
 	AdvDoors.SetModification = function(door, id)
 		door:SetNWBool("advdoors_modification_" .. id, true)
@@ -69,6 +80,12 @@ if SERVER then
 	
 	AdvDoors.UnsetModification = function(door, id)
 		door:SetNWBool("advdoors_modification_" .. id, false)
+	end
+	
+	AdvDoors.RemoveAllModifications = function(door) 
+		for k,v in pairs(AdvDoors.Modifications) do
+			door:SetNWBool("advdoors_modification_" .. k, false)
+		end
 	end
 	
 	hook.Add("lockpickTime", "AdvancedDoorSystem_LockpickTime", function(ply, ent)
@@ -92,17 +109,17 @@ if SERVER then
 	net.Receive("advdoors_doorbell", function(len, ply)
 		local data = net.ReadEntity()
 		if IsValid(ply) and ply:IsPlayer() and IsValid(data) and ply:GetPos():Distance(data:GetPos()) < 200 and not doorbellCooldown[AdvDoors.getEntIndex(data)] then
-			doorbellCooldown = true
+			doorbellCooldown[AdvDoors.getEntIndex(data)] = true
 			timer.Simple(5, function()
-				doorbellCooldown = false
+				doorbellCooldown[AdvDoors.getEntIndex(data)] = false
 			end)
-			ent:EmitSound("advdoors/doorbell.wav")
+			data:EmitSound("advdoors/doorbell.wav")
 		end
 	end)
 	
 	net.Receive("advdoors_purchasemod", function(len, ply)
 		local data = net.ReadTable()
-		if IsValid(data.door) and data.door:isDoor() and data.door:isKeysOwnedBy(ply) and ply:GetPos():Distance(data.door:GetPos()) < 300 and AdvDoors.Modifications[data.mod] and ply:getDarkRPVar("money") >= AdvDoors.Modifications[data.mod].Cost then
+		if IsValid(data.door) and data.door:isDoor() and data.door:isKeysOwnedBy(ply) and ply:GetPos():Distance(data.door:GetPos()) < 300 and AdvDoors.Modifications[data.mod] and ply:getDarkRPVar("money") >= AdvDoors.Modifications[data.mod].Cost and AdvDoors.ModificationsEnabled then
 			ply:addMoney(-AdvDoors.Modifications[data.mod].Cost)
 			AdvDoors.SetModification(data.door, data.mod)
 			timer.Simple(0.25, function()
@@ -111,5 +128,4 @@ if SERVER then
 			end)
 		end
 	end)
-	
 end

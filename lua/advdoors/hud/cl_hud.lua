@@ -1,4 +1,5 @@
 AdvDoors.KeyLocked = false
+AdvDoors.DoorbellLocked = false
 function CalcDoorDrawPosition(door)
 	local center = door:OBBCenter()
 	local dimensions = door:OBBMins() - door:OBBMaxs()
@@ -83,11 +84,12 @@ function draw.CornerBox(origin_x, origin_y, x, y, length, color)
 	draw.Corner(origin_x + x, origin_y + y, CORNER_LEFT, CORNER_UP, length, color)
 end
 
-local locked, unlocked, rent
+local locked, unlocked, rent, bell
 
 AdvDoors.DownloadMaterial("http://i.imgur.com/kyXExEL.png", function(self) locked = self end) -- Icon made by http://www.flaticon.com/authors/madebyoliver from www.flaticon.com
 AdvDoors.DownloadMaterial("http://i.imgur.com/axjRFV1.png", function(self) unlocked = self end) -- Icon made by http://www.flaticon.com/authors/madebyoliver from www.flaticon.com
 AdvDoors.DownloadMaterial("http://i.imgur.com/qr9JX3t.png", function(self) rent = self end) -- Icon made by http://www.flaticon.com/authors/roundicons from www.flaticon.com
+AdvDoors.DownloadMaterial("http://i.imgur.com/4ZlW2gE.png", function(self) bell = self end)
 
 local fadeColor = 0
 local fadeDirection = true
@@ -163,8 +165,31 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 					AdvDoors.openMenu(v.Entity);
 				end
 			end
+			
+			if tr.Entity == v.Entity and pos[v.XL] > PosLocal[v.XL] - 47/2 and pos[v.XL] < PosLocal[v.XL] + 47/2 and pos[v.YL] < PosLocal[v.YL] - 48/2 + 236/10 and pos[v.YL] > PosLocal[v.YL] - 48/2 + 176/10 and LocalPlayer():GetPos():Distance(v.Entity:GetPos()) < 100 and AdvDoors.hasModification(v.Entity, 1) then
+				surface.SetDrawColor(Color(69, 48, 23, 150))
+				surface.DrawRect(-w/2, h/2 - 236, w, 60, 10)
+				if input.IsMouseDown(MOUSE_RIGHT) and not AdvDoors.DoorbellLocked then
+					AdvDoors.DoorbellLocked = true
+					AdvDoors.useBell(v.Entity);
+					timer.Simple(5, function()
+						AdvDoors.DoorbellLocked = false
+					end)
+				end
+			end
 			draw.CornerBox(-w/2, h/2 - 120, w, 60, 10, Color(255, 255, 255, 150));
 			draw.SimpleText("Open menu", "AdvDoorsMain", 0, h/2 - 90, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			
+			if AdvDoors.hasModification(v.Entity, 1) then
+				draw.CornerBox(-w/2, h/2 - 236, w, 60, 10, Color(255, 255, 255, 150));
+				surface.SetMaterial(bell)
+				surface.SetDrawColor(255, 255, 255, 255)
+				surface.DrawTexturedRect(-w/2 + 2, -h/2 + 244, 60, 60)
+				draw.SimpleText("Use a bell", "AdvDoorsMain", 0, h/2 - 205, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				surface.SetDrawColor(Color(150, 150, 150, 50))
+				surface.DrawLine(-w/2, -h/2 + 304, w/2, -h/2 + 304)
+			end
+			
 			cam.End3D2D()
 		end
 	end

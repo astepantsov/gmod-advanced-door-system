@@ -20,6 +20,7 @@ TAB.Function = function(frame, door)
 	layoutModifications:SetSpaceY(5)
 	
 	for k,v in ipairs(AdvDoors.Modifications) do
+		if !v.isEnabled then continue end
 		local panel = layoutModifications:Add("mgPanel")
 		panel:SetSize(layoutModifications:GetWide(), 52)
 		local icon = vgui.Create("DImage", panel)
@@ -72,4 +73,6 @@ TAB.Function = function(frame, door)
 	return pnl_modifications
 end
 
-AdvDoors.AddMenuTab(TAB, 3)
+if AdvDoors.ModificationsEnabled then
+	AdvDoors.AddMenuTab(TAB, 3)
+end

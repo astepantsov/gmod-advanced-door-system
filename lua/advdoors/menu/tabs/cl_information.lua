@@ -35,6 +35,19 @@ TAB.Function = function(frame, door)
 		end
 	end
 	
+	if AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] then
+		local menuAllowedJobs = vgui.Create("mgMenu", pnl_information)
+		menuAllowedJobs:SetText("Allowed jobs")
+		menuAllowedJobs:SetSize(150, 32)
+		menuAllowedJobs:SetPos(ownerItem:GetPos() + ownerItem:GetWide() + 5, select(2, ownerItem:GetPos()))
+		menuAllowedJobs.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
+		for k,v in pairs(AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)]) do
+			if v then
+				menuAllowedJobs:AddChoice(team.GetName(k), "")
+			end
+		end
+	end
+	
 	local labelTenant = vgui.Create("DLabel", pnl_information)
 	labelTenant:SetPos(pnl_information:GetWide() - 180, 16)
 	labelTenant:SetText("Tenant: ")
@@ -190,7 +203,7 @@ TAB.Function = function(frame, door)
 		local labelOwned = vgui.Create("mgStatusLabel", pnl_information)
 		labelOwned:SetPos(labelPrice:GetWide() + labelPurchase:GetWide() + buttonPurchase:GetWide() + 20, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 15)
 		labelOwned:SetType(isOwned == LocalPlayer() and "success" or "danger")
-		labelOwned:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot purchase it" or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) and "You can't buy this door, because it is job restricted" or (door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable()) and "This door can't be owned" or "This door is owned already and cannot be purchased")
+		labelOwned:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot purchase it" or isOwned and "This door is owned already and cannot be purchased" or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) and "This door is job restricted" or (door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable()) and "This door can't be owned")
 		labelOwned:SizeToContents()
 	end
 		
