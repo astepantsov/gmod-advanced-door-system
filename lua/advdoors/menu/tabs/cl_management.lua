@@ -67,6 +67,7 @@ TAB.Function = function(frame, door)
 	buttonUpdateRent:SetSize(100, 16)
 	buttonUpdateRent:SetText("Update")
 	buttonUpdateRent.DoClick = function()
+		if not tonumber(textAmountRent:GetValue()) or not tonumber(sliderLengthRent:GetValue()) or not tonumber(textPeriodsRent:GetValue()) or not isbool(boolRent:GetValue()) then return end
 		net.Start("advdoors_updaterent")
 		net.WriteTable({
 			door = door,
@@ -106,7 +107,6 @@ TAB.Function = function(frame, door)
 				if frame and IsValid(frame) then
 					frame:Remove()
 					AdvDoors.openMenu(door)
-					mgui.Notify("You have sold this door for " .. DarkRP.formatMoney(door:getDoorSellPrice() or math.Round(GAMEMODE.Config.doorcost * 2 / 3)))
 				end
 			end)
 		end, "Yes", "No")

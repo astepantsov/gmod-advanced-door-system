@@ -2,14 +2,14 @@ local meta = FindMetaTable("Entity")
 
 function meta:getDoorPrice()
 	if self:isDoor() and self:isKeysOwnable() then
-		return AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(self)] and AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(self)].Buy or false
+		return AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(self)] or false
 	end
 	return false
 end
 
 function meta:getDoorSellPrice()
 	if self:isDoor() and self:isKeysOwnable() then
-		return AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(self)] and AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(self)].Sell or false
+		return AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(self)] and math.Round(AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(self)] * 2/3) or false
 	end
 	return false
 end

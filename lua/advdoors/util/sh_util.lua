@@ -111,9 +111,9 @@ AdvDoors.jobList = function(jobs)
 end
 
 AdvDoors.isTeamAllowedToBuyDoor = function(door, team)
-	if AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] then
+	if AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] and #AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] > 0 and AdvDoors.hasJobRestriction(door) then
 		for k,v in pairs(AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)]) do
-			if k == team then
+			if k == team and v then
 				return true
 			end
 		end

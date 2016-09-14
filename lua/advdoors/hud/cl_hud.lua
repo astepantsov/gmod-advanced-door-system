@@ -93,7 +93,7 @@ local fadeColor = 0
 local fadeDirection = true
 local fadeStart = CurTime();
 
-hook.Add( "PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", function()
+hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", function()
 	for _,v in pairs(GenerateDoorList()) do
 		if v.Entity:isKeysOwnable() and not v.Entity:getKeysNonOwnable() and not v.Entity:isDoorBlacklisted() and not v.Entity:isDoorTypeBlacklisted() then
 			local trace = {

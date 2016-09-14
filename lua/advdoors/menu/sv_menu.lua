@@ -16,6 +16,8 @@ util.AddNetworkString("advdoors_jobremove")
 util.AddNetworkString("advdoors_anyplayer")
 util.AddNetworkString("advdoors_addjobplayer")
 util.AddNetworkString("advdoors_jobremoveplayer")
+util.AddNetworkString("advdoors_changeprice")
+util.AddNetworkString("advdoors_otheractions")
 
 local function doorCost(ply, door)
 	return door:getDoorPrice() or GAMEMODE.Config.doorcost
@@ -43,6 +45,20 @@ local function soldDoor(ply, door)
 end
 
 hook.Add("playerKeysSold", "AdvancedDoorSystem_DoorSold", soldDoor)
+
+local function resetJobRestriction(door)
+	AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] = {}
+	AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
+	AdvDoors.Configuration.Broadcast()
+end
+
+local function resetRent(door)
+	door:SetNWBool("canRent", false)
+	door:SetNWEntity("tenant", false)
+	door:SetNWFloat("rentPrice", 1)
+	door:SetNWFloat("rentLength", 1)
+	door:SetNWFloat("rentMaxPeriods", 1)
+end
 
 net.Receive("advdoors_updaterent", function(len, ply)
 	local data = net.ReadTable()
@@ -151,13 +167,11 @@ net.Receive("advdoors_toggleownership", function(len, ply)
 			if AdvDoors.getOwner(data.door) then
 				data.door:keysUnOwn(AdvDoors.getOwner(data.door))
 			end
-			data.door:SetNWBool("canRent", false)
-			data.door:SetNWEntity("tenant", false)
-			data.door:SetNWFloat("rentPrice", 1)
-			data.door:SetNWFloat("rentLength", 1)
-			data.door:SetNWFloat("rentMaxPeriods", 1)
+			resetRent(data.door)
 		end
 		data.door:setKeysNonOwnable(!data.state)
+		net.Start("advdoors_toggleownership")
+		net.Send(ply)
 	end
 end)
 
@@ -193,15 +207,12 @@ net.Receive("advdoors_addjob", function(len, ply)
 	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and team.GetName(data.job) != "" then
 		data.door:removeAllKeysAllowedToOwn()
 		data.door:removeAllKeysExtraOwners()
+		resetJobRestriction(data.door)
 		data.door:setDoorGroup(nil)
 		if AdvDoors.getOwner(data.door) then
 			data.door:keysUnOwn(AdvDoors.getOwner(data.door))
 		end
-		data.door:SetNWBool("canRent", false)
-		data.door:SetNWEntity("tenant", false)
-		data.door:SetNWFloat("rentPrice", 1)
-		data.door:SetNWFloat("rentLength", 1)
-		data.door:SetNWFloat("rentMaxPeriods", 1)
+		resetRent(data.door)
 		data.door:addKeysDoorTeam(data.job)
 		DarkRP.storeTeamDoorOwnability(data.door)
 		DarkRP.storeDoorGroup(data.door, nil)
@@ -216,15 +227,11 @@ net.Receive("advdoors_setgroup", function(len, ply)
 		data.door:removeAllKeysAllowedToOwn()
 		data.door:removeAllKeysDoorTeams()
 		data.door:removeAllKeysExtraOwners()
+		resetJobRestriction(data.door)
 		if AdvDoors.getOwner(data.door) then
 			data.door:keysUnOwn(AdvDoors.getOwner(data.door))
 		end
-		data.door:SetNWBool("canRent", false)
-		data.door:SetNWEntity("tenant", false)
-		data.door:SetNWFloat("rentPrice", 1)
-		data.door:SetNWFloat("rentLength", 1)
-		data.door:SetNWFloat("rentMaxPeriods", 1)
-		data.door:setDoorGroup(data.group)
+		resetRent(data.door)
 		DarkRP.storeDoorGroup(data.door, data.group)
 		DarkRP.storeTeamDoorOwnability(data.door)
 		net.Start("advdoors_setgroup")
@@ -248,14 +255,11 @@ net.Receive("advdoors_anyplayer", function(len, ply)
 		data:removeAllKeysAllowedToOwn()
 		data:removeAllKeysDoorTeams()
 		data:removeAllKeysExtraOwners()
+		resetJobRestriction(data)
 		if AdvDoors.getOwner(data) then
 			data:keysUnOwn(AdvDoors.getOwner(data))
 		end
-		data:SetNWBool("canRent", false)
-		data:SetNWEntity("tenant", false)
-		data:SetNWFloat("rentPrice", 1)
-		data:SetNWFloat("rentLength", 1)
-		data:SetNWFloat("rentMaxPeriods", 1)
+		resetRent(door)
 		data:setDoorGroup(nil)
 		DarkRP.storeDoorGroup(data, nil)
 		DarkRP.storeTeamDoorOwnability(data)
@@ -284,6 +288,38 @@ net.Receive("advdoors_jobremoveplayer", function(len, ply)
 		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
 		AdvDoors.Configuration.Broadcast()
 		net.Start("advdoors_jobremoveplayer")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_changeprice", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and tonumber(data.price) and math.Round(tonumber(data.price)) >= 1 then
+		AdvDoors.Configuration.getMapConfig().DoorPrices[AdvDoors.getEntIndex(data.door)] = math.Round(tonumber(data.price))
+		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
+		AdvDoors.Configuration.Broadcast()
+		net.Start("advdoors_changeprice")
+		net.Send(ply)
+	end
+end)
+
+net.Receive("advdoors_otheractions", function(len, ply)
+	local data = net.ReadTable()
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and data.actionID == 1 or data.actionID == 2 or data.actionID == 3 or data.actionID == 4 then
+		if data.actionID == 1 or data.actionID == 4 then
+			if AdvDoors.getOwner(data.door) then
+				data.door:keysUnOwn(AdvDoors.getOwner(data.door))
+				resetRent(data.door)
+			end
+		end
+		if data.actionID == 2 or data.actionID == 4 then
+			data.door:removeAllKeysExtraOwners()
+		end
+		if data.actionID == 3 or data.actionID == 4 then
+			data.door:SetNWEntity("tenant", false)
+			data.door:SetNWFloat("tenantExpire", CurTime())
+		end
+		net.Start("advdoors_otheractions")
 		net.Send(ply)
 	end
 end)

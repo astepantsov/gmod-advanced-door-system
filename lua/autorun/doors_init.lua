@@ -11,6 +11,7 @@ AdvDoors.ManualLoad = {
 	"core/cl_configuration.lua",
 	"util/sh_util.lua",
 	"hud/cl_hud.lua",
+	"menu/sh_modifications.lua",
 	"menu/tabs/cl_information.lua",
 	"menu/tabs/cl_management.lua",
 	"menu/tabs/cl_modifications.lua",
@@ -40,7 +41,12 @@ if CLIENT then
 	file.CreateDir("advdoors/materials")
 else
 	file.CreateDir("advdoors/configuration")
+	resource.AddSingleFile("sound/advdoors/doorbell.wav")
+	resource.AddSingleFile("sound/advdoors/alarm.wav")
 end
+
+util.PrecacheSound("advdoors/doorbell.wav")
+util.PrecacheSound("advdoors/alarm.wav")
 
 for k,v in pairs(AdvDoors.ManualLoad) do
 	LoadFileByName(v, "advdoors/" .. v)

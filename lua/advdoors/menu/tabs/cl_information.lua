@@ -180,18 +180,17 @@ TAB.Function = function(frame, door)
 				if frame and IsValid(frame) then
 					frame:Remove()
 					AdvDoors.openMenu(door)
-					mgui.Notify("You have bought this door for " .. DarkRP.formatMoney(door:getDoorPrice() or GAMEMODE.Config.doorcost))
 				end
 			end)
 		end, "Yes", "No")
 	end
 		
-	if isOwned and not door:isKeysAllowedToOwn(LocalPlayer()) or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) then
+	if isOwned and not door:isKeysAllowedToOwn(LocalPlayer()) or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) or door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable() then
 		buttonPurchase:SetDisabled(true)
 		local labelOwned = vgui.Create("mgStatusLabel", pnl_information)
 		labelOwned:SetPos(labelPrice:GetWide() + labelPurchase:GetWide() + buttonPurchase:GetWide() + 20, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 15)
 		labelOwned:SetType(isOwned == LocalPlayer() and "success" or "danger")
-		labelOwned:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot purchase it" or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) and "You can't buy this door, because it is job restricted" or "This door is owned already and cannot be purchased")
+		labelOwned:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot purchase it" or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) and "You can't buy this door, because it is job restricted" or (door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable()) and "This door can't be owned" or "This door is owned already and cannot be purchased")
 		labelOwned:SizeToContents()
 	end
 		
@@ -277,7 +276,7 @@ TAB.Function = function(frame, door)
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_information:GetWide(), pnl_information:GetTall())
 		surface.DrawLine(0, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 5, pnl_information:GetWide(), select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 5)
-		if isOwned and not door:isKeysAllowedToOwn(LocalPlayer()) or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) then
+		if isOwned and not door:isKeysAllowedToOwn(LocalPlayer()) or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) or door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable() then
 			surface.SetDrawColor(37, 37, 37, 150)
 			surface.DrawRect(1, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 6, pnl_information:GetWide() - 2, labelPurchase:GetTall() + 18)
 		end

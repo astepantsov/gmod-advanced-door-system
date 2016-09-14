@@ -25,6 +25,9 @@ TAB.Function = function(frame, door)
 		net.Start("advdoors_toggleownership")
 		net.WriteTable({door = door, state = bool:GetValue()})
 		net.SendToServer()
+		net.Receive("advdoors_toggleownership", function()
+			AdvDoors.refreshTab(1, false)
+		end)
 	end
 	
 	local labelDisplay = vgui.Create("DLabel", pnl_admin)
@@ -83,7 +86,7 @@ TAB.Function = function(frame, door)
 	
 	local labelCanOwn = vgui.Create("DLabel", pnl_admin)
 	labelCanOwn:SetPos(5, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 15)
-	labelCanOwn:SetText("Who can own this door: ")
+	labelCanOwn:SetText("Who can use this door: ")
 	labelCanOwn:SetFont(fontMenu)
 	labelCanOwn:SizeToContents()
 	
@@ -98,7 +101,7 @@ TAB.Function = function(frame, door)
 	menuCanOwn:AddChoice("Specified group", 3)
 	
 	local panelOwner = vgui.Create("DPanel", pnl_admin);
-	panelOwner:SetSize(pnl_admin:GetWide() - 2, 60)
+	panelOwner:SetSize(pnl_admin:GetWide() - 2, 55)
 	panelOwner:SetPos(1, select(2, menuCanOwn:GetPos()) + menuCanOwn:GetTall() + 5)
 	panelOwner.Paint = function() end
 	
@@ -108,7 +111,7 @@ TAB.Function = function(frame, door)
 		end
 		
 		if select(2, panel:GetValue()) == 1 then
-			mgui.ShowDialog("confirm", "Are you sure that you want to add this job?", function()
+			mgui.ShowDialog("confirm", "Are you sure that you want to change the door type?", function()
 				net.Start("advdoors_anyplayer")
 				net.WriteEntity(door)
 				net.SendToServer()
@@ -335,12 +338,87 @@ TAB.Function = function(frame, door)
 	labelWarningCanOwn:SetText("Warning: changing category may remove all owners")
 	labelWarningCanOwn:SizeToContents() 
 	
+	local labelCanOwn = vgui.Create("DLabel", pnl_admin)
+	labelCanOwn:SetPos(5, select(2, panelOwner:GetPos()) + panelOwner:GetTall() + 15)
+	labelCanOwn:SetText("Change door price: ")
+	labelCanOwn:SetFont(fontMenu)
+	labelCanOwn:SizeToContents()
+	
+	local textAmountBuy = vgui.Create("mgTextEntry", pnl_admin)
+	textAmountBuy:SetPos(labelCanOwn:GetWide() + 10, select(2, labelCanOwn:GetPos()) - 5);
+	textAmountBuy:SetSize(100, 32)
+	textAmountBuy:SetValue(door:getDoorPrice() or GAMEMODE.Config.doorcost)
+	
+	local buttonAmountBuy = vgui.Create("mgButton", pnl_admin)
+	buttonAmountBuy:SetPos(textAmountBuy:GetPos() + textAmountBuy:GetWide() + 5, select(2, labelCanOwn:GetPos()) - 5)
+	buttonAmountBuy:SetSize(100, 32)
+	buttonAmountBuy:SetText("Change")
+	buttonAmountBuy.DoClick = function()
+		if not tonumber(textAmountBuy:GetValue()) or math.Round(tonumber(textAmountBuy:GetValue())) < 1 then return end
+		mgui.ShowDialog("confirm", "Are you sure that you want to change door's price?", function()
+			net.Start("advdoors_changeprice")
+			net.WriteTable({door = door, price = math.Round(tonumber(textAmountBuy:GetValue()) or "")})
+			net.SendToServer()
+			net.Receive("advdoors_changeprice", function(len)
+				AdvDoors.refreshTab(1, false)
+				AdvDoors.refreshTab(4, true)
+				mgui.Notify("Price has been changed successfully")
+			end)
+		end, "Yes", "No")
+	end
+	
+	local labelWarningOther = vgui.Create("mgStatusLabel", pnl_admin)
+	labelWarningOther:SetPos(5, select(2, buttonAmountBuy:GetPos()) + buttonAmountBuy:GetTall() + 10)
+	labelWarningOther:SetType("warning")
+	labelWarningOther:SetText("Some of the commands below will only take effect if door is owned by some player")
+	labelWarningOther:SizeToContents() 
+	
+	local buttonActions = {
+		[1] = {
+				Name = "Remove an owner", w = 150, h = 32, netID = 1, message = "Owner has been removed"
+			},
+		[2] = {
+				Name = "Remove all coowners", w = 150, h = 32, netID = 2, message = "Coowners have been removed"
+			},
+		[3] = {
+				Name = "Remove a tenant", w = 150, h = 32, netID = 3, message = "Tenant has been removed"
+			},
+		[4] = {
+				Name = "Remove everyone", w = 150, h = 32, netID = 4, message = "Everyone has been removed"
+			}
+	}
+	
+	local otherLayout = vgui.Create("DIconLayout", pnl_admin)
+	otherLayout:SetWidth(panelOwner:GetWide() - 10);
+	otherLayout:SetPos(5, select(2, labelWarningOther:GetPos()) + labelWarningOther:GetTall() + 5)
+	otherLayout:SetSpaceX(5)
+	otherLayout:SetSpaceY(5)
+	
+	for k,v in pairs(buttonActions) do
+		local buttonAmountBuy = otherLayout:Add("mgButton")
+		buttonAmountBuy:SetSize(v.w, v.h)
+		buttonAmountBuy:SetText(v.Name)
+		buttonAmountBuy.DoClick = function()
+			mgui.ShowDialog("confirm", "Are you sure that you to perform this action?", function()
+				net.Start("advdoors_otheractions")
+				net.WriteTable({door = door, actionID = v.netID})
+				net.SendToServer()
+				net.Receive("advdoors_otheractions", function(len)
+					mgui.Notify(v.message)
+					AdvDoors.refreshTab(1, false)
+					AdvDoors.refreshTab(4, true)
+				end)
+			end, "Yes", "No")
+		end
+	end
+	
 	pnl_admin.PaintOver = function()
 		surface.SetDrawColor(mgui.Colors.Blue)
 		surface.DrawOutlinedRect(0, 0, pnl_admin:GetWide(), pnl_admin:GetTall())
 		surface.DrawLine(1, boolOwnership:GetTall() + 10, pnl_admin:GetWide() - 2, boolOwnership:GetTall() + 10)
 		surface.DrawLine(1, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 5, pnl_admin:GetWide() - 2, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 5)
 		surface.DrawLine(1, select(2, panelOwner:GetPos()) + panelOwner:GetTall() + 5, pnl_admin:GetWide() - 2, select(2, panelOwner:GetPos()) + panelOwner:GetTall() + 5)
+		surface.DrawLine(1, select(2, buttonAmountBuy:GetPos()) + buttonAmountBuy:GetTall() + 5, pnl_admin:GetWide() - 2, select(2, buttonAmountBuy:GetPos()) + buttonAmountBuy:GetTall() + 5)
 	end
 	
 	return pnl_admin
