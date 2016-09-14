@@ -312,3 +312,18 @@ hook.Add("canKeysUnlock", "AdvancedDoorSystem_CanLock", function(ply, door)
 		return true
 	end
 end)
+
+hook.Add("playerBuyDoor", "AdvancedDoorSystem_CanBuy", function(ply, door)
+	if IsValid(ply) and ply:IsPlayer() and IsValid(door) and door:isDoor() and door:isKeysOwnable() then
+		if AdvDoors.hasJobRestriction(door) then
+			if AdvDoors.isTeamAllowedToBuyDoor(door, ply:Team()) then
+				return true
+			else
+				return false, "This door has a job restriction", false
+			end
+		else
+			return true
+		end
+	end
+	return false, "This door can't be bought", false
+end)

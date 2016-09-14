@@ -109,3 +109,15 @@ AdvDoors.jobList = function(jobs)
 	end
 	return false
 end
+
+AdvDoors.isTeamAllowedToBuyDoor = function(door, team)
+	if AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] then
+		for k,v in pairs(AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)]) do
+			if k == team then
+				return true
+			end
+		end
+		return false
+	end
+	return true
+end
