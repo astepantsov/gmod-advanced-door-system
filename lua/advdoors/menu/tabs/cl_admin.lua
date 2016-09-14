@@ -81,13 +81,6 @@ TAB.Function = function(frame, door)
 		menuDisplay:SetDisabled(true)
 	end
 	
-	pnl_admin.PaintOver = function()
-		surface.SetDrawColor(mgui.Colors.Blue)
-		surface.DrawOutlinedRect(0, 0, pnl_admin:GetWide(), pnl_admin:GetTall())
-		surface.DrawLine(1, boolOwnership:GetTall() + 10, pnl_admin:GetWide() - 2, boolOwnership:GetTall() + 10)
-		surface.DrawLine(1, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 5, pnl_admin:GetWide() - 2, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 5)
-	end
-	
 	local labelCanOwn = vgui.Create("DLabel", pnl_admin)
 	labelCanOwn:SetPos(5, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 15)
 	labelCanOwn:SetText("Who can own this door: ")
@@ -341,6 +334,14 @@ TAB.Function = function(frame, door)
 	labelWarningCanOwn:SetType("warning")
 	labelWarningCanOwn:SetText("Warning: changing category may remove all owners")
 	labelWarningCanOwn:SizeToContents() 
+	
+	pnl_admin.PaintOver = function()
+		surface.SetDrawColor(mgui.Colors.Blue)
+		surface.DrawOutlinedRect(0, 0, pnl_admin:GetWide(), pnl_admin:GetTall())
+		surface.DrawLine(1, boolOwnership:GetTall() + 10, pnl_admin:GetWide() - 2, boolOwnership:GetTall() + 10)
+		surface.DrawLine(1, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 5, pnl_admin:GetWide() - 2, select(2, labelStatusDisplay:GetPos()) + labelStatusDisplay:GetTall() + 5)
+		surface.DrawLine(1, select(2, panelOwner:GetPos()) + panelOwner:GetTall() + 5, pnl_admin:GetWide() - 2, select(2, panelOwner:GetPos()) + panelOwner:GetTall() + 5)
+	end
 	
 	return pnl_admin
 end
