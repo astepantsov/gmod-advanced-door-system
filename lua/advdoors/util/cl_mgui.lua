@@ -65,15 +65,29 @@ mgui.SafeString = function(str)
 end
 
 if CLIENT then
-	hook.Add("Initialize", "mgui_stuff", function()
+	local skin = derma.GetDefaultSkin()
+
+	if skin and skin.tex and skin.tex.Shadow then
+		
 		local drawShadow = derma.GetDefaultSkin().tex.Shadow
  
 		mgui.DrawShadow = function(x, y, w, h)
 			DisableClipping(true)
 			drawShadow(-4, -4, w + 10, h + 10)
 			DisableClipping(false)
-		end  
-	end)
+		end
+	else
+		hook.Add("PostGamemodeLoad", "Xmgui_stuff", function()
+			
+			local drawShadow = derma.GetDefaultSkin().tex.Shadow
+ 
+			mgui.DrawShadow = function(x, y, w, h)
+				DisableClipping(true)
+				drawShadow(-4, -4, w + 10, h + 10)
+				DisableClipping(false)
+			end  
+		end)
+	end
 else
 	resource.AddSingleFile("moderngui/error.png")
 end
