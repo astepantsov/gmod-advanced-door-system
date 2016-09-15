@@ -89,7 +89,7 @@ local locked, unlocked, rent, bell
 AdvDoors.DownloadMaterial("http://i.imgur.com/kyXExEL.png", function(self) locked = self end) -- Icon made by http://www.flaticon.com/authors/madebyoliver from www.flaticon.com
 AdvDoors.DownloadMaterial("http://i.imgur.com/axjRFV1.png", function(self) unlocked = self end) -- Icon made by http://www.flaticon.com/authors/madebyoliver from www.flaticon.com
 AdvDoors.DownloadMaterial("http://i.imgur.com/qr9JX3t.png", function(self) rent = self end) -- Icon made by http://www.flaticon.com/authors/roundicons from www.flaticon.com
-AdvDoors.DownloadMaterial("http://i.imgur.com/4ZlW2gE.png", function(self) bell = self end)
+AdvDoors.DownloadMaterial("http://i.imgur.com/4ZlW2gE.png", function(self) bell = self end) -- Icon made by http://www.flaticon.com/authors/madebyoliver from www.flaticon.com
 
 local fadeColor = 0
 local fadeDirection = true

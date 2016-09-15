@@ -18,18 +18,6 @@ AdvDoors.SetModificationsDisabled = function()
 		AdvDoors.removeMenuTab(3)
 	end
 end
---You can edit modifications here
-local doorbell, reinforce, alarm
-if CLIENT then
-	AdvDoors.DownloadMaterial("http://i.imgur.com/4ZlW2gE.png", function(self) doorbell = self end)
-	AdvDoors.DownloadMaterial("http://i.imgur.com/iGgYdyV.png", function(self) reinforce = self end)
-	AdvDoors.DownloadMaterial("http://i.imgur.com/8SThKBP.png", function(self) alarm = self end)
-	AdvDoors.useBell = function(door)
-		net.Start("advdoors_doorbell")
-		net.WriteEntity(door)
-		net.SendToServer()
-	end
-end
 
 AdvDoors.SetModificationPrice = function(id, price)
 	if AdvDoors.Modifications[id] then

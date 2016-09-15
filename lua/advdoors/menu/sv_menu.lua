@@ -236,6 +236,7 @@ net.Receive("advdoors_setgroup", function(len, ply)
 			data.door:keysUnOwn(AdvDoors.getOwner(data.door))
 		end
 		resetRent(data.door)
+		data.door:setDoorGroup(data.group)
 		DarkRP.storeDoorGroup(data.door, data.group)
 		DarkRP.storeTeamDoorOwnability(data.door)
 		net.Start("advdoors_setgroup")
@@ -258,13 +259,13 @@ net.Receive("advdoors_anyplayer", function(len, ply)
 	if IsValid(data) and data:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
 		data:removeAllKeysAllowedToOwn()
 		data:removeAllKeysDoorTeams()
-		AdvDoors.RemoveAllModifications(data.door)
+		AdvDoors.RemoveAllModifications(data)
 		data:removeAllKeysExtraOwners()
 		resetJobRestriction(data)
 		if AdvDoors.getOwner(data) then
 			data:keysUnOwn(AdvDoors.getOwner(data))
 		end
-		resetRent(door)
+		resetRent(data)
 		data:setDoorGroup(nil)
 		DarkRP.storeDoorGroup(data, nil)
 		DarkRP.storeTeamDoorOwnability(data)
@@ -319,6 +320,7 @@ net.Receive("advdoors_otheractions", function(len, ply)
 			end
 		end
 		if data.actionID == 2 or data.actionID == 4 then
+			data.door:removeAllKeysAllowedToOwn()
 			data.door:removeAllKeysExtraOwners()
 		end
 		if data.actionID == 3 or data.actionID == 4 then
