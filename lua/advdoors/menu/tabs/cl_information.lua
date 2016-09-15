@@ -35,7 +35,7 @@ TAB.Function = function(frame, door)
 		end
 	end
 	
-	if AdvDoors.Configuration.getMapConfig().DoorJobs[AdvDoors.getEntIndex(door)] then
+	if AdvDoors.hasJobRestriction(door) then
 		local menuAllowedJobs = vgui.Create("mgMenu", pnl_information)
 		menuAllowedJobs:SetText("Allowed jobs")
 		menuAllowedJobs:SetSize(150, 32)

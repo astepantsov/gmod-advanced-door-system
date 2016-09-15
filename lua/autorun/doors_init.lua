@@ -16,7 +16,8 @@ AdvDoors.ManualLoad = {
 	"menu/tabs/cl_management.lua",
 	"menu/tabs/cl_modifications.lua",
 	"menu/tabs/cl_admin.lua",
-	"menu/cl_menu.lua"
+	"menu/cl_menu.lua",
+	"sh_custom.lua"
 }
 
 local function LoadFileByName(name, path)
@@ -41,8 +42,7 @@ if CLIENT then
 	file.CreateDir("advdoors/materials")
 else
 	file.CreateDir("advdoors/configuration")
-	resource.AddSingleFile("sound/advdoors/doorbell.wav")
-	resource.AddSingleFile("sound/advdoors/alarm.wav")
+	resource.AddWorkshop("763869294")
 end
 
 util.PrecacheSound("advdoors/doorbell.wav")

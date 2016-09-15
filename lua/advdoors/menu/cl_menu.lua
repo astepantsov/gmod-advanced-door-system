@@ -17,9 +17,9 @@ AdvDoors.openMenu = function(door)
 	local hlist = vgui.Create("mgHorizontalTabs", frame)
 	hlist:SetPos(5, 30)
 	hlist:SetSize(frame:GetWide() - 10, 40)
-
+	
 	for k, v in pairs(AdvDoors.MenuTabs) do
-		if (table.HasValue(v.Access, NO_ACCESS) and not LocalPlayer():canKeysLock(door) and not LocalPlayer():canKeysLock(door)) or (table.HasValue(v.Access, OWNER) and LocalPlayer() == door:getDoorOwner()) or (table.HasValue(v.Access, COOWNER) and door:getKeysCoOwners() and door:getKeysCoOwners()[LocalPlayer():UserID()]) or (table.HasValue(v.Access, ADMIN) and LocalPlayer():IsSuperAdmin()) then			
+		if v and (table.HasValue(v.Access, NO_ACCESS) and not LocalPlayer():canKeysLock(door) and not LocalPlayer():canKeysLock(door)) or (table.HasValue(v.Access, OWNER) and LocalPlayer() == door:getDoorOwner()) or (table.HasValue(v.Access, COOWNER) and door:getKeysCoOwners() and door:getKeysCoOwners()[LocalPlayer():UserID()]) or (table.HasValue(v.Access, ADMIN) and LocalPlayer():IsSuperAdmin()) then			
 			local b = hlist:AddTab(v.Title, cog, v.Function(frame, door) or nil)
 			AdvDoors.CurrentTabs[k] = b
 			if k == 1 then hlist:SetSelected(b) end

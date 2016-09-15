@@ -23,6 +23,10 @@ if CLIENT then
 			AdvDoors.MenuTabs[id] = tab
 		end
 	end
+	
+	AdvDoors.removeMenuTab = function(id)
+		AdvDoors.MenuTabs[id].Access = { NOONE }
+	end
 end
 
 AdvDoors.isLocked = function(door)

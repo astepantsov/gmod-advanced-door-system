@@ -2,6 +2,7 @@ NO_ACCESS = 0
 OWNER = 1
 COOWNER = 2
 ADMIN = 3
+NOONE = 4
 
 AdvDoors.Configuration = AdvDoors.Configuration or {}
 
