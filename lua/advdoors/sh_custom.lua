@@ -1,5 +1,7 @@
 -- AdvDoors.SetModificationsDisabled()
 
+AdvDoors.OpenButton = MOUSE_RIGHT
+
 local doorbell, reinforce, alarm
 
 if CLIENT then

@@ -1,5 +1,6 @@
 AdvDoors.KeyLocked = false
 AdvDoors.DoorbellLocked = false
+AdvDoors.OpenButton = AdvDoors.OpenButton or MOUSE_RIGHT
 function CalcDoorDrawPosition(door)
 	local center = door:OBBCenter()
 	local dimensions = door:OBBMins() - door:OBBMaxs()
@@ -160,7 +161,7 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 			if tr.Entity == v.Entity and pos[v.XL] > PosLocal[v.XL] - 47/2 and pos[v.XL] < PosLocal[v.XL] + 47/2 and pos[v.YL] < PosLocal[v.YL] - 48/2 + 120/10 and pos[v.YL] > PosLocal[v.YL] - 48/2 + 60/10 and LocalPlayer():GetPos():Distance(v.Entity:GetPos()) < 200 then
 				surface.SetDrawColor(Color(69, 48, 23, 150))
 				surface.DrawRect(-w/2, h/2 - 120, w, 60, 10)
-				if input.IsMouseDown(MOUSE_RIGHT) and not AdvDoors.KeyLocked then
+				if input.IsMouseDown(AdvDoors.OpenButton) and not AdvDoors.KeyLocked then
 					AdvDoors.KeyLocked = true
 					AdvDoors.openMenu(v.Entity);
 				end
@@ -169,7 +170,7 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 			if tr.Entity == v.Entity and pos[v.XL] > PosLocal[v.XL] - 47/2 and pos[v.XL] < PosLocal[v.XL] + 47/2 and pos[v.YL] < PosLocal[v.YL] - 48/2 + 236/10 and pos[v.YL] > PosLocal[v.YL] - 48/2 + 176/10 and LocalPlayer():GetPos():Distance(v.Entity:GetPos()) < 100 and AdvDoors.hasModification(v.Entity, 1) then
 				surface.SetDrawColor(Color(69, 48, 23, 150))
 				surface.DrawRect(-w/2, h/2 - 236, w, 60, 10)
-				if input.IsMouseDown(MOUSE_RIGHT) and not AdvDoors.DoorbellLocked then
+				if input.IsMouseDown(AdvDoors.OpenButton) and not AdvDoors.DoorbellLocked then
 					AdvDoors.DoorbellLocked = true
 					AdvDoors.useBell(v.Entity);
 					timer.Simple(5, function()
