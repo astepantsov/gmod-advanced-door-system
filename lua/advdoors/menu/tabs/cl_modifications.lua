@@ -1,6 +1,6 @@
 local TAB = {}
 
-TAB.Title = "Modifications"
+TAB.Title = AdvDoors.LANG.GetString("mod_title")
 TAB.Access = {
 	OWNER,
 	COOWNER
@@ -45,7 +45,7 @@ TAB.Function = function(frame, door)
 		local buttonBuyMod = vgui.Create("mgStatusLabel", panel)
 		buttonBuyMod:SetPos(labelModPrice:GetPos() + labelModPrice:GetWide() + 5, 5)
 		buttonBuyMod:SetType((AdvDoors.hasModification(door, k) or LocalPlayer():getDarkRPVar("money") < v.Cost) and "danger" or "success")
-		buttonBuyMod:SetText(AdvDoors.hasModification(door, k) and "Already owned" or LocalPlayer():getDarkRPVar("money") < v.Cost and "Not enough money" or "Purchase")
+		buttonBuyMod:SetText(AdvDoors.hasModification(door, k) and AdvDoors.LANG.GetString("mod_owned") or LocalPlayer():getDarkRPVar("money") < v.Cost and AdvDoors.LANG.GetString("mod_no_money") or AdvDoors.LANG.GetString("mod_purchase"))
 		if not AdvDoors.hasModification(door, k) and LocalPlayer():getDarkRPVar("money") >= v.Cost then
 			buttonBuyMod:SetFunction(function()
 				net.Start("advdoors_purchasemod")

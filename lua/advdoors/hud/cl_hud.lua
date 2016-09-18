@@ -113,7 +113,7 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 			surface.SetDrawColor(Color(0, 0, 0, 150))
 			surface.DrawRect(-w/2, -h/2, w, h)
 			draw.CornerBox(-w/2, -h/2, w, h, 10, Color(255, 255, 255, 150))
-			draw.SimpleText(v.Entity:getKeysTitle() or "Unnamed", "AdvDoorsMain", 0, -h/2 + 10, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			draw.SimpleText(v.Entity:getKeysTitle() or AdvDoors.LANG.GetString("unnamed"), "AdvDoorsMain", 0, -h/2 + 10, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 			surface.SetDrawColor(Color(150, 150, 150, 50))
 			surface.DrawLine(-w/2, -h/2 + 60, w/2, -h/2 + 60)
 			surface.DrawOutlinedRect(-w/2, -h/2, w + 1, h + 1)
@@ -121,12 +121,12 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 				surface.SetDrawColor(Color(227, 94, 5, 150))
 				surface.DrawRect(-w/2, -h/2 + 60, 64, 64);
 				surface.SetMaterial(locked)
-				draw.SimpleText("Locked", "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(AdvDoors.LANG.GetString("locked"), "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			else
 				surface.SetDrawColor(Color(165, 255, 105, 150))
 				surface.DrawRect(-w/2, -h/2 + 60, 64, 64);
 				surface.SetMaterial(unlocked)
-				draw.SimpleText("Not Locked", "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(AdvDoors.LANG.GetString("not_locked"), "AdvDoorsMain", 0, -h/2 + 92, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 			draw.CornerBox(-w/2, -h/2 + 60, w, 64, 10, Color(255, 255, 255, 150));
 			draw.Corner(-w/2, -h/2 + 60, CORNER_RIGHT, CORNER_UP, 10, Color(255, 255, 255, 150))
@@ -137,7 +137,7 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 			surface.DrawLine(-w/2, -h/2 + 124, w/2, -h/2 + 124)
 			surface.DrawLine(-w/2 + 64, -h/2 + 60, -w/2 + 64, -h/2 + 124)
 			draw.CornerBox(-w/2, -h/2 + 124, w, 60, 10, Color(255, 255, 255, 150));
-			draw.SimpleText((AdvDoors.getOwnerName(v.Entity) or v.Entity:getKeysDoorGroup() or (v.Entity:getKeysDoorTeams() and "specified jobs") or "Unowned"), "AdvDoorsMain", 0, -h/2 + 154, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText((AdvDoors.getOwnerName(v.Entity) or v.Entity:getKeysDoorGroup() or (v.Entity:getKeysDoorTeams() and AdvDoors.LANG.GetString("spec_jobs")) or AdvDoors.LANG.GetString("unowned")), "AdvDoorsMain", 0, -h/2 + 154, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			surface.SetDrawColor(Color(150, 150, 150, 50))
 			surface.DrawLine(-w/2, -h/2 + 184, w/2, -h/2 + 184)
 			surface.DrawLine(-w/2, -h/2 + 244, w/2, -h/2 + 244)
@@ -148,7 +148,7 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 				surface.SetDrawColor(Color(mgui.Colors.Red.r, mgui.Colors.Red.g, mgui.Colors.Red.b, fadeColor))
 				surface.DrawRect(-w/2 + 2, -h/2 + 184, w-2, 60)
 			end
-			draw.SimpleText((AdvDoors.getOwner(v.Entity) and v.Entity:GetNWBool("canRent", false) and not v.Entity:GetNWEntity("tenant", false)) and "Available for rent" or "Not available for rent", "AdvDoorsMain", 0, -h/2 + 214, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText((AdvDoors.getOwner(v.Entity) and v.Entity:GetNWBool("canRent", false) and not v.Entity:GetNWEntity("tenant", false)) and AdvDoors.LANG.GetString("rent_available") or AdvDoors.LANG.GetString("rent_unavailable"), "AdvDoorsMain", 0, -h/2 + 214, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			surface.SetMaterial(rent)
 			surface.SetDrawColor(255, 255, 255, 255)
 			surface.DrawTexturedRect(-w/2 + 2, -h/2 + 184, 60, 60)
@@ -179,14 +179,14 @@ hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", fu
 				end
 			end
 			draw.CornerBox(-w/2, h/2 - 120, w, 60, 10, Color(255, 255, 255, 150));
-			draw.SimpleText("Open menu", "AdvDoorsMain", 0, h/2 - 90, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText(AdvDoors.LANG.GetString("open_menu"), "AdvDoorsMain", 0, h/2 - 90, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			
 			if AdvDoors.hasModification(v.Entity, 1) then
 				draw.CornerBox(-w/2, h/2 - 236, w, 60, 10, Color(255, 255, 255, 150));
 				surface.SetMaterial(bell)
 				surface.SetDrawColor(255, 255, 255, 255)
 				surface.DrawTexturedRect(-w/2 + 2, -h/2 + 244, 60, 60)
-				draw.SimpleText("Use a bell", "AdvDoorsMain", 0, h/2 - 205, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(AdvDoors.LANG.GetString("use_bell"), "AdvDoorsMain", 0, h/2 - 205, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				surface.SetDrawColor(Color(150, 150, 150, 50))
 				surface.DrawLine(-w/2, -h/2 + 304, w/2, -h/2 + 304)
 			end

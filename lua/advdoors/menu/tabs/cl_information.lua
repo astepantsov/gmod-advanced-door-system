@@ -1,6 +1,6 @@
 local TAB = {}
 
-TAB.Title = "Information"
+TAB.Title = AdvDoors.LANG.GetString("inf_title")
 TAB.Access = {
 	NO_ACCESS, 
 	OWNER, 
@@ -20,13 +20,13 @@ TAB.Function = function(frame, door)
 	
 	local labelOwner = vgui.Create("DLabel", pnl_information)
 	labelOwner:SetPos(5, 16)
-	labelOwner:SetText("Owner: ")
+	labelOwner:SetText(AdvDoors.LANG.GetString("owner") .. ": ")
 	labelOwner:SetFont(fontMenu)
 	labelOwner:SizeToContents()
 	local ownerItem = vgui.Create("mgItem", pnl_information)
 	ownerItem:SetPos(10 + labelOwner:GetWide(), 10)
 	ownerItem:SetSize(110, 32)
-	ownerItem:SetName(ownerName or "No owner") 
+	ownerItem:SetName(ownerName or AdvDoors.LANG.GetString("no_owner")) 
 	ownerItem:SetSteamID(AdvDoors.getOwnerSteamID64(door) or "")
 	ownerItem:SetType("Player")
 	if ownerName then
@@ -37,7 +37,7 @@ TAB.Function = function(frame, door)
 	
 	if AdvDoors.hasJobRestriction(door) then
 		local menuAllowedJobs = vgui.Create("mgMenu", pnl_information)
-		menuAllowedJobs:SetText("Allowed jobs")
+		menuAllowedJobs:SetText(AdvDoors.LANG.GetString("allowed_jobs"))
 		menuAllowedJobs:SetSize(150, 32)
 		menuAllowedJobs:SetPos(ownerItem:GetPos() + ownerItem:GetWide() + 5, select(2, ownerItem:GetPos()))
 		menuAllowedJobs.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
@@ -50,13 +50,13 @@ TAB.Function = function(frame, door)
 	
 	local labelTenant = vgui.Create("DLabel", pnl_information)
 	labelTenant:SetPos(pnl_information:GetWide() - 180, 16)
-	labelTenant:SetText("Tenant: ")
+	labelTenant:SetText(AdvDoors.LANG.GetString("tenant") .. ": ")
 	labelTenant:SetFont(fontMenu)
 	labelTenant:SizeToContents()
 	local tenantItem = vgui.Create("mgItem", pnl_information)
 	tenantItem:SetPos(pnl_information:GetWide() - 120, 10)
 	tenantItem:SetSize(110, 32)
-	tenantItem:SetName(door:GetNWEntity("tenant", false) and door:GetNWEntity("tenant", false):Name() or "No tenant") 
+	tenantItem:SetName(door:GetNWEntity("tenant", false) and door:GetNWEntity("tenant", false):Name() or AdvDoors.LANG.GetString("no_tenant")) 
 	tenantItem:SetSteamID(door:GetNWEntity("tenant", false) and door:GetNWEntity("tenant", false):SteamID64() or "")
 	tenantItem:SetType("Player")
 	if door:GetNWEntity("tenant", false) then
@@ -67,7 +67,7 @@ TAB.Function = function(frame, door)
 	
 	local labelCoowner = vgui.Create("DLabel", pnl_information)
 	labelCoowner:SetPos(5, 54)
-	labelCoowner:SetText("Coowners: ")
+	labelCoowner:SetText(AdvDoors.LANG.GetString("coowners") .. ": ")
 	labelCoowner:SetFont(fontMenu)
 	labelCoowner:SizeToContents()
 	local coownerLayout = vgui.Create("DIconLayout", pnl_information)
@@ -89,7 +89,7 @@ TAB.Function = function(frame, door)
 				coownerItem:SetType("Player")
 				if elements == 3 then
 					local CoownersMore = coownerLayout:Add("mgMenu")
-					CoownersMore:SetText("and " .. (#coOwners - elements) .. " more")
+					CoownersMore:SetText(AdvDoors.LANG.FormatString("and_x_more", #coOwners - elements))
 					CoownersMore:SetSize(110, 32)
 					CoownersMore.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
 					for l = 4, #coOwners, 1 do
@@ -104,27 +104,27 @@ TAB.Function = function(frame, door)
 		coownerLayout:SetPos(pos_x, pos_y + 8);
 		local noCoowners = coownerLayout:Add("mgStatusLabel")
 		noCoowners:SetType("primary")
-		noCoowners:SetText("This door has no coowners")
+		noCoowners:SetText(AdvDoors.LANG.GetString("has_no_coowners"))
 		noCoowners:SizeToContents() 
 	end
 
 	coownerLayout:InvalidateLayout(true)
 	local labelGroups = vgui.Create("DLabel", pnl_information)
 	labelGroups:SetPos(5, select(2, coownerLayout:GetPos()) + coownerLayout:GetTall() + 8)
-	labelGroups:SetText("Door group: ")
+	labelGroups:SetText(AdvDoors.LANG.GetString("door_group") .. ": ")
 	labelGroups:SetFont(fontMenu)
 	labelGroups:SizeToContents()
 	
 	local labelGroupOwner = vgui.Create("mgStatusLabel", pnl_information)
 	labelGroupOwner:SetType("primary")
-	labelGroupOwner:SetText(door:getKeysDoorGroup() or "No group")
+	labelGroupOwner:SetText(door:getKeysDoorGroup() or AdvDoors.LANG.GetString("no_group"))
 	labelGroupOwner:SetPos(10 + labelGroups:GetWide(), select(2, coownerLayout:GetPos()) + coownerLayout:GetTall() + 8);
 	labelGroupOwner:SizeToContents()
 	
 	local x, y = labelGroupOwner:GetPos();
 	local labelTeams = vgui.Create("DLabel", pnl_information)
 	labelTeams:SetPos(5, y + labelGroupOwner:GetTall() + 8)
-	labelTeams:SetText("Door teams: ")
+	labelTeams:SetText(AdvDoors.LANG.GetString("door_teams") .. ": ")
 	labelTeams:SetFont(fontMenu)
 	labelTeams:SizeToContents()
 	
@@ -143,7 +143,7 @@ TAB.Function = function(frame, door)
 		for k,v in pairs(doorTeams) do
 			if (((teamsLayout:GetWide() - teamWidth - surface.GetTextSize(team.GetName(k)) - 10) <= 100) or (teamWidth + surface.GetTextSize(team.GetName(k)) > teamsLayout:GetWide() - labelTeams:GetWide())) and #doorTeams > teamCount then
 				local teamsMore = teamsLayout:Add("mgMenu")
-				teamsMore:SetText("and " .. (#doorTeams - teamCount) .. " more")
+				teamsMore:SetText(AdvDoors.LANG.FormatString("and_x_more", #doorTeams - teamCount))
 				teamsMore:SetSize(100, 18)
 				teamsMore.ChoicePanelCreated = function(self, btn) btn:SetDisabled(true) end
 				for l,p in pairs(doorTeams) do
@@ -165,13 +165,13 @@ TAB.Function = function(frame, door)
 	else
 		local noTeams = teamsLayout:Add("mgStatusLabel")
 		noTeams:SetType("primary")
-		noTeams:SetText("This door has no teams assigned")
+		noTeams:SetText(AdvDoors.LANG.GetString("no_teams"))
 		noTeams:SizeToContents()
 	end
 	
 	local labelPurchase = vgui.Create("DLabel", pnl_information)
 	labelPurchase:SetPos(5, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 15)
-	labelPurchase:SetText("Buy a door for")
+	labelPurchase:SetText(AdvDoors.LANG.GetString("buy_for"))
 	labelPurchase:SetFont(fontMenu)
 	labelPurchase:SizeToContents()
 	labelPurchase:InvalidateLayout(true)
@@ -185,9 +185,9 @@ TAB.Function = function(frame, door)
 	local buttonPurchase = vgui.Create("mgButton", pnl_information)
 	buttonPurchase:SetPos(labelPurchase:GetWide() + labelPrice:GetWide() + 15, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 10)
 	buttonPurchase:SetSize(100, labelPrice:GetTall() + 10)
-	buttonPurchase:SetText("Purchase")
+	buttonPurchase:SetText(AdvDoors.LANG.GetString("purchase"))
 	buttonPurchase.DoClick = function()
-		mgui.ShowDialog("confirm", "Are you sure that you want to purchase this door?", function()
+		mgui.ShowDialog("confirm", AdvDoors.LANG.GetString("purchase_conf"), function()
 			RunConsoleCommand("darkrp", "toggleown")
 			net.Receive("advdoors_purchased", function()
 				if frame and IsValid(frame) then
@@ -195,7 +195,7 @@ TAB.Function = function(frame, door)
 					AdvDoors.openMenu(door)
 				end
 			end)
-		end, "Yes", "No")
+		end, AdvDoors.LANG.GetString("yes"), AdvDoors.LANG.GetString("no"))
 	end
 		
 	if isOwned and not door:isKeysAllowedToOwn(LocalPlayer()) or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) or door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable() then
@@ -203,13 +203,13 @@ TAB.Function = function(frame, door)
 		local labelOwned = vgui.Create("mgStatusLabel", pnl_information)
 		labelOwned:SetPos(labelPrice:GetWide() + labelPurchase:GetWide() + buttonPurchase:GetWide() + 20, select(2, labelTeams:GetPos()) + labelTeams:GetTall() + 15)
 		labelOwned:SetType(isOwned == LocalPlayer() and "success" or "danger")
-		labelOwned:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot purchase it" or isOwned and "This door is owned already and cannot be purchased" or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) and "This door is job restricted" or (door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable()) and "This door can't be owned")
+		labelOwned:SetText(isOwned == LocalPlayer() and AdvDoors.LANG.GetString("owner_restr") or isOwned and AdvDoors.LANG.GetString("already_owned") or not AdvDoors.isTeamAllowedToBuyDoor(door, LocalPlayer():Team()) and AdvDoors.LANG.GetString("job_restr") or (door:getKeysDoorTeams() or door:getKeysDoorGroup() or door:getKeysNonOwnable()) and AdvDoors.LANG.GetString("nonownable"))
 		labelOwned:SizeToContents()
 	end
 		
 	local labelRent = vgui.Create("DLabel", pnl_information)
 	labelRent:SetPos(5, select(2, labelPurchase:GetPos()) + labelPurchase:GetTall() + 15)
-	labelRent:SetText("Rent this door for ")
+	labelRent:SetText(AdvDoors.LANG.GetString("rent_for"))
 	labelRent:SetFont(fontMenu)
 	labelRent:SizeToContents()
 	labelRent:InvalidateLayout(true)
@@ -217,12 +217,12 @@ TAB.Function = function(frame, door)
 	local labelRentInfo = vgui.Create("mgStatusLabel", pnl_information)
 	labelRentInfo:SetPos(10 + labelRent:GetWide(), select(2, labelRent:GetPos()))
 	labelRentInfo:SetType(isOwned == LocalPlayer() and "success" or (door:GetNWBool("canRent", false) and not door:GetNWBool("tenant", false)) and "primary" or door:GetNWBool("tenant", false) == LocalPlayer() and "warning" or isOwned and "danger" or "warning")
-	labelRentInfo:SetText(isOwned == LocalPlayer() and "You are the owner of this door and cannot rent it" or (door:GetNWBool("canRent", false) and not door:GetNWBool("tenant", false)) and DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " / " .. door:GetNWFloat("rentLength") .. " minute(s)" or door:GetNWBool("tenant", false) == LocalPlayer() and "Your rent expires at " .. os.date("%H:%M:%S - %d/%m/%Y", os.time() + (door:GetNWFloat("tenantExpire") - CurTime())) or isOwned and "Owner of this door doesn't want to rent it out" or "You cannot rent this door as it is not owned by anyone yet")
+	labelRentInfo:SetText(isOwned == LocalPlayer() and AdvDoors.LANG.GetString("owner_rent_restr") or (door:GetNWBool("canRent", false) and not door:GetNWBool("tenant", false)) and AdvDoors.LANG.FormatString("x_mins", DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " / " .. door:GetNWFloat("rentLength")) or door:GetNWBool("tenant", false) == LocalPlayer() and AdvDoors.LANG.FormatString(os.date("%H:%M:%S - %d/%m/%Y", os.time() + (door:GetNWFloat("tenantExpire") - CurTime()))) or isOwned and AdvDoors.LANG.GetString("no_rent") or AdvDoors.LANG.GetString("rent_not_owned"))
 	labelRentInfo:SizeToContents()
 	
 	local labelRentPeriods = vgui.Create("DLabel", pnl_information)
 	labelRentPeriods:SetPos(5, select(2, labelRent:GetPos()) + labelRent:GetTall() + 8)
-	labelRentPeriods:SetText("Amount of periods: ")
+	labelRentPeriods:SetText(AdvDoors.LANG.GetString("amnt_periods") .. ": ")
 	labelRentPeriods:SetFont(fontMenu)
 	labelRentPeriods:SizeToContents()
 	labelRentPeriods:InvalidateLayout(true)
@@ -236,14 +236,14 @@ TAB.Function = function(frame, door)
 		sliderRentPeriods:SizeToContents()
 	else
 		sliderRentPeriods:SetType("warning")
-		sliderRentPeriods:SetText("You can't change the amount of periods for this door")
+		sliderRentPeriods:SetText(AdvDoors.LANG.GetString("amnt_periods_no_change"))
 		sliderRentPeriods:SizeToContents()
 	end
 	sliderRentPeriods:InvalidateLayout(true)
 	
 	local labelResult = vgui.Create("DLabel", pnl_information)
 	labelResult:SetPos(5, select(2, sliderRentPeriods:GetPos()) + sliderRentPeriods:GetTall() + 8)
-	labelResult:SetText("You will pay ")
+	labelResult:SetText(AdvDoors.LANG.GetString("will_pay"))
 	labelResult:SetFont(fontMenu)
 	labelResult:SizeToContents()
 	labelResult:InvalidateLayout(true)
@@ -251,12 +251,12 @@ TAB.Function = function(frame, door)
 	local labelResultMoney = vgui.Create("mgStatusLabel", pnl_information)
 	labelResultMoney:SetPos(10 + labelResult:GetWide(), select(2, sliderRentPeriods:GetPos()) + sliderRentPeriods:GetTall() + 8)
 	labelResultMoney:SetType("warning")
-	labelResultMoney:SetText((door:GetNWFloat("rentMaxPeriods", 1) == 1 and door:GetNWBool("canRent", false)) and DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " for " .. door:GetNWFloat("rentLength") .. " minute(s)" or door:GetNWBool("canRent", false) and DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())) .. " for " .. (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue())) .. " minute(s)" or "unknown")
+	labelResultMoney:SetText((door:GetNWFloat("rentMaxPeriods", 1) == 1 and door:GetNWBool("canRent", false)) and AdvDoors.LANG.FormatString("x_for_y_mins", DarkRP.formatMoney(door:GetNWFloat("rentPrice")), door:GetNWFloat("rentLength")) or door:GetNWBool("canRent", false) and AdvDoors.LANG.FormatString("x_for_y_mins", DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())), (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue()))) or AdvDoors.LANG.GetString("unknown"))
 	labelResultMoney:SizeToContents()
 
 	
 	sliderRentPeriods.Think = function()
-		labelResultMoney:SetText((door:GetNWFloat("rentMaxPeriods", 1) == 1 and door:GetNWBool("canRent", false)) and DarkRP.formatMoney(door:GetNWFloat("rentPrice")) .. " for " .. door:GetNWFloat("rentLength") .. " minute(s)" or door:GetNWBool("canRent", false) and DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())) .. " for " .. (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue())) .. " minute(s)" or "unknown")
+		labelResultMoney:SetText((door:GetNWFloat("rentMaxPeriods", 1) == 1 and door:GetNWBool("canRent", false)) and AdvDoors.LANG.FormatString("x_for_y_mins", DarkRP.formatMoney(door:GetNWFloat("rentPrice")), door:GetNWFloat("rentLength")) or door:GetNWBool("canRent", false) and AdvDoors.LANG.FormatString("x_for_y_mins", DarkRP.formatMoney(door:GetNWFloat("rentPrice") * math.Round(sliderRentPeriods:GetValue())), (door:GetNWFloat("rentLength") * math.Round(sliderRentPeriods:GetValue()))) or AdvDoors.LANG.GetString("unknown"))
 		labelResultMoney:SizeToContents(true)
 	end
 	
@@ -265,10 +265,10 @@ TAB.Function = function(frame, door)
 	local buttonRent = vgui.Create("mgButton", pnl_information)
 	buttonRent:SetPos(pnl_information:GetWide() - 106, select(2, labelResultMoney:GetPos()) - 5)
 	buttonRent:SetSize(100, 30)
-	buttonRent:SetText("Rent this door")
+	buttonRent:SetText(AdvDoors.LANG.GetString("btn_rent"))
 	buttonRent:SetDisabled(!rentActive)
 	buttonRent.DoClick = function()
-		mgui.ShowDialog("confirm", "Are you sure that you want to rent this door?", function()
+		mgui.ShowDialog("confirm", AdvDoors.LANG.GetString("rent_conf"), function()
 			net.Start("advdoors_rent")
 			net.WriteTable({
 				door = door,
@@ -279,10 +279,10 @@ TAB.Function = function(frame, door)
 				if frame and IsValid(frame) then
 					frame:Remove()
 					AdvDoors.openMenu(door)
-					mgui.Notify("You have rent this door.")
+					mgui.Notify(AdvDoors.LANG.GetString("have_rent_notify"))
 				end
 			end)
-		end, "Yes", "No")
+		end, AdvDoors.LANG.GetString("yes"), AdvDoors.LANG.GetString("no"))
 	end
 	
 	pnl_information.PaintOver = function()

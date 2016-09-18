@@ -7,7 +7,7 @@ AdvDoors.openMenu = function(door)
 	frame:SetSize(600, 500)
 	frame:Center()
 	frame:MakePopup()
-	frame:SetTitle("Door Menu")
+	frame:SetTitle(AdvDoors.LANG.GetString("title"))
 	frame:SetBackgroundBlur(true)
 	frame.CloseButton.DoClick = function()
 		AdvDoors.KeyLocked = false
@@ -48,3 +48,5 @@ hook.Add("Think","AdvancedDoorSystem_OpenMenuF2", function()
 		AdvDoors.openMenu(ent);
 	end
 end)
+
+include("advdoors/sh_custom.lua")

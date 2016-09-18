@@ -71,12 +71,12 @@ net.Receive("advdoors_updaterent", function(len, ply)
 			data.door:SetNWFloat("rentMaxPeriods", math.floor(data.rentMaxPeriods))
 			timer.Simple(0.25, function()
 				net.Start("advdoors_updaterent")
-				net.WriteString("Rent information has been updated")
+				net.WriteString(AdvDoors.LANG.GetString("rent_updated"))
 				net.Send(ply)
 			end)
 		else
 			net.Start("advdoors_updaterent")
-			net.WriteString("Couldn't update the rent information, verify your input")
+			net.WriteString(AdvDoors.LANG.GetString("rent_not_updated"))
 			net.Send(ply)
 		end
 	end
@@ -364,11 +364,11 @@ hook.Add("playerBuyDoor", "AdvancedDoorSystem_CanBuy", function(ply, door)
 			if AdvDoors.isTeamAllowedToBuyDoor(door, ply:Team()) then
 				return true
 			else
-				return false, "This door has a job restriction", false
+				return false, AdvDoors.LANG.GetString("has_job_restr"), false
 			end
 		else
 			return true
 		end
 	end
-	return false, "This door can't be bought", false
+	return false, AdvDoors.LANG.GetString("cannot_buy"), false
 end)

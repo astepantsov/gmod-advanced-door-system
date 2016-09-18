@@ -3,6 +3,7 @@ AdvDoors = AdvDoors or {}
 AdvDoors.ManualLoad = {
 	"util/cl_mgui.lua",
 	"core/sv_configuration.lua",
+	"core/sh_language.lua",
 	"util/sh_meta.lua",
 	"core/sv_doorinfo.lua",
 	"menu/sv_menu.lua",
