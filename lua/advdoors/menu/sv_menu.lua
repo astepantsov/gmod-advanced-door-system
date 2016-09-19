@@ -341,6 +341,7 @@ hook.Add("PlayerDisconnected", "AdvancedDoorSystem_Disconnect", function(ply)
 			door:SetNWFloat("rentPrice", 1)
 			door:SetNWFloat("rentLength", 1)
 			door:SetNWFloat("rentMaxPeriods", 1)
+			door:SetNWBool("AdvDoors_isLocked", false)
 			AdvDoors.RemoveAllModifications(door)
 		end
 	end
