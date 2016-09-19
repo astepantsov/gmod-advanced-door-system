@@ -184,6 +184,8 @@ net.Receive("advdoors_addblacklist", function(len, ply)
 			AdvDoors.Configuration.getMapConfig().blacklistedDoors[AdvDoors.getEntIndex(data.door)] = true
 		elseif data.option == 2 then
 			AdvDoors.Configuration.getGeneralConfig().doorPropBlacklist[data.door:GetClass()] = true
+		elseif data.option == 3 then
+			AdvDoors.Configuration.getGeneralConfig().doorModelBlacklist[data.door:GetModel()] = true
 		end
 		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
 		AdvDoors.Configuration.Broadcast()
@@ -197,6 +199,7 @@ net.Receive("advdoors_removeblacklist", function(len, ply)
 	if IsValid(ent) and ent:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() then
 		AdvDoors.Configuration.getMapConfig().blacklistedDoors[AdvDoors.getEntIndex(ent)] = false
 		AdvDoors.Configuration.getGeneralConfig().doorPropBlacklist[ent:GetClass()] = false
+		AdvDoors.Configuration.getGeneralConfig().doorModelBlacklist[ent:GetModel()] = false
 		AdvDoors.Configuration.Save(AdvDoors.Configuration.Loaded)
 		AdvDoors.Configuration.Broadcast()
 		net.Start("advdoors_removeblacklist")

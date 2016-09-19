@@ -42,6 +42,7 @@ TAB.Function = function(frame, door)
 	menuDisplay:SetText(AdvDoors.LANG.GetString("select_option"))
 	menuDisplay:AddChoice(AdvDoors.LANG.GetString("this_door"), 1)
 	menuDisplay:AddChoice(AdvDoors.LANG.FormatString("alldoors_x_type", door:GetClass()), 2)
+	menuDisplay:AddChoice(AdvDoors.LANG.FormatString("alldoors_x_model", door:GetModel()), 3)
 	
 	local buttonDisplay = vgui.Create("mgButton", pnl_admin)
 	buttonDisplay:SetPos(15 + labelDisplay:GetWide() + menuDisplay:GetWide(), select(2, boolOwnership:GetPos()) + boolOwnership:GetTall() + 10)
@@ -62,7 +63,7 @@ TAB.Function = function(frame, door)
 	local labelStatusDisplay = vgui.Create("mgStatusLabel", pnl_admin)
 	labelStatusDisplay:SetPos(5, select(2, buttonDisplay:GetPos()) + buttonDisplay:GetTall() + 5)
 	labelStatusDisplay:SetType((door:isDoorBlacklisted() or door:isDoorTypeBlacklisted()) and "danger" or "success")
-	labelStatusDisplay:SetText(door:isDoorBlacklisted() and AdvDoors.LANG.GetString("disabled_display") or door:isDoorTypeBlacklisted() and AdvDoors.LANG.FormatString("disabledall_x_type_display", door:GetClass()) or AdvDoors.LANG.GetString("not_disabled_display"))
+	labelStatusDisplay:SetText(door:isDoorBlacklisted() and AdvDoors.LANG.GetString("disabled_display") or door:isDoorTypeBlacklisted() and AdvDoors.LANG.FormatString("disabledall_x_type_display", door:GetClass()) or door:isDoorModelBlacklisted() and AdvDoors.LANG.FormatString("disabledall_x_model_display", door:GetModel()) or AdvDoors.LANG.GetString("not_disabled_display"))
 	labelStatusDisplay:SizeToContents() 
 	
 	if door:isDoorBlacklisted() or door:isDoorTypeBlacklisted() then

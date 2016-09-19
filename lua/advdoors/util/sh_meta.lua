@@ -27,3 +27,10 @@ function meta:isDoorTypeBlacklisted()
 	end
 	return false
 end
+
+function meta:isDoorModelBlacklisted()
+	if AdvDoors.Configuration.getGeneralConfig().doorModelBlacklist[self:GetModel()] then
+		return true
+	end
+	return false
+end

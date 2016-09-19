@@ -112,11 +112,13 @@ L.doordisplay_disable = "Disable door display"
 L.select_option = "Select an option"
 L.this_door = "Only for this door"
 L.alldoors_x_type = "For all doors of this type ({1})"
+L.alldoors_x_model = "For all doors with this model ({1})"
 L.disable_btn = "Disable"
 L.disable_conf = "Are you sure that you want to disable door display?"
 
 L.disabled_display = "Door display is disabled for this door"
 L.disabledall_x_type_display = "Door display is disabled for all doors of this type ({1})"
+L.disableall_x_model_display = "Door display is disabled for all doors with this model ({1})"
 L.not_disabled_display = "Door display for this door is not disabled"
 
 L.enable_btn = "Enable"
