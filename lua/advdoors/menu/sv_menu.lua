@@ -179,7 +179,7 @@ end)
 
 net.Receive("advdoors_addblacklist", function(len, ply)
 	local data = net.ReadTable()
-	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and data.option == 1 or data.option == 2 then
+	if IsValid(data.door) and data.door:isDoor() and IsValid(ply) and ply:IsPlayer() and ply:IsSuperAdmin() and data.option == 1 or data.option == 2 or data.option == 3 then
 		if data.option == 1 then
 			AdvDoors.Configuration.getMapConfig().blacklistedDoors[AdvDoors.getEntIndex(data.door)] = true
 		elseif data.option == 2 then

@@ -3,7 +3,8 @@ util.AddNetworkString("advdoors_sendconfig")
 AdvDoors.Configuration = AdvDoors.Configuration or {}
 AdvDoors.Configuration.Default = {
 	General = {
-		doorPropBlacklist = {}
+		doorPropBlacklist = {},
+		doorModelBlacklist = {}
 	},
 	[game.GetMap()] = {
 		DoorPrices = {},
@@ -31,6 +32,11 @@ AdvDoors.Configuration.Load = function()
 		AdvDoors.Configuration.Save(config)
 	end
 
+	if not config.General.doorModelBlacklist then
+		config.General.doorModelBlacklist = {}
+		AdvDoors.Configuration.Save(config)
+	end
+	
 	AdvDoors.Configuration.Loaded = config
 
 	AdvDoors.Configuration.Broadcast()

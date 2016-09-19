@@ -62,11 +62,11 @@ TAB.Function = function(frame, door)
 	
 	local labelStatusDisplay = vgui.Create("mgStatusLabel", pnl_admin)
 	labelStatusDisplay:SetPos(5, select(2, buttonDisplay:GetPos()) + buttonDisplay:GetTall() + 5)
-	labelStatusDisplay:SetType((door:isDoorBlacklisted() or door:isDoorTypeBlacklisted()) and "danger" or "success")
+	labelStatusDisplay:SetType((door:isDoorBlacklisted() or door:isDoorTypeBlacklisted() or door:isDoorModelBlacklisted()) and "danger" or "success")
 	labelStatusDisplay:SetText(door:isDoorBlacklisted() and AdvDoors.LANG.GetString("disabled_display") or door:isDoorTypeBlacklisted() and AdvDoors.LANG.FormatString("disabledall_x_type_display", door:GetClass()) or door:isDoorModelBlacklisted() and AdvDoors.LANG.FormatString("disabledall_x_model_display", door:GetModel()) or AdvDoors.LANG.GetString("not_disabled_display"))
 	labelStatusDisplay:SizeToContents() 
 	
-	if door:isDoorBlacklisted() or door:isDoorTypeBlacklisted() then
+	if door:isDoorBlacklisted() or door:isDoorTypeBlacklisted() or door:isDoorModelBlacklisted() then
 		local buttonRemove = vgui.Create("mgButton", pnl_admin)
 		buttonRemove:SetPos(10 + labelStatusDisplay:GetWide(), select(2, buttonDisplay:GetPos()) + buttonDisplay:GetTall() + 5)
 		buttonRemove:SetSize(100, 16)

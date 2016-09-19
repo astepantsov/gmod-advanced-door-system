@@ -98,7 +98,7 @@ local fadeStart = CurTime();
 
 hook.Add("PostDrawTranslucentRenderables", "AdvancedDoorSystem_DrawDoorData", function()
 	for _,v in pairs(GenerateDoorList()) do
-		if v.Entity:isKeysOwnable() and not v.Entity:getKeysNonOwnable() and not v.Entity:isDoorBlacklisted() and not v.Entity:isDoorTypeBlacklisted() then
+		if v.Entity:isKeysOwnable() and not v.Entity:getKeysNonOwnable() and not v.Entity:isDoorBlacklisted() and not v.Entity:isDoorTypeBlacklisted() and not v.Entity:isDoorModelBlacklisted() then
 			local trace = {
 				start = LocalPlayer():GetShootPos(),
 				endpos = LocalPlayer():GetAimVector() * 295 + LocalPlayer():GetShootPos(),

@@ -118,7 +118,7 @@ L.disable_conf = "Are you sure that you want to disable door display?"
 
 L.disabled_display = "Door display is disabled for this door"
 L.disabledall_x_type_display = "Door display is disabled for all doors of this type ({1})"
-L.disableall_x_model_display = "Door display is disabled for all doors with this model ({1})"
+L.disabledall_x_model_display = "Door display is disabled for all doors with this model ({1})"
 L.not_disabled_display = "Door display for this door is not disabled"
 
 L.enable_btn = "Enable"
