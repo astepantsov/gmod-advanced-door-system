@@ -76,7 +76,7 @@ local function loadClientConfig(ply)
 	net.Send(ply)
 end
 
-hook.Add("PlayerInitialSpawn", "XAdvancedDoorSystem_ConfigurationLoad", loadClientConfig)
+hook.Add("PlayerInitialSpawn", "zAdvancedDoorSystem_ConfigurationLoad", loadClientConfig)
 
 net.Receive("advdoors_sendconfig", function( len, ply )
 	if IsValid(ply) and ply:IsSuperAdmin() then

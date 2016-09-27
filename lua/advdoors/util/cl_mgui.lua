@@ -78,7 +78,7 @@ if CLIENT then
 			DisableClipping(false)
 		end
 	else
-		hook.Add("Initialize", "mgui_stuff", function()
+		hook.Add("Initialize", "xmgui_stuff", function()
 		
 			local drawShadow = derma.GetDefaultSkin().tex.Shadow
 
